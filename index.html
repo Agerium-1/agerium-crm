@@ -2188,7 +2188,7 @@ async function writeToSheet(lead){
   if(!url) return;
   try {
     await fetch(url, {
-      method: 'POST',
+      method: 'POST', mode: 'no-cors',
       headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({
         action: 'upsert',
@@ -2218,7 +2218,7 @@ async function deleteFromSheet(id){
   if(!url) return;
   try {
     await fetch(url, {
-      method: 'POST',
+      method: 'POST', mode: 'no-cors',
       headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({ action: 'delete', id: String(id) })
     });
