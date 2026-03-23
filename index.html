@@ -1,0 +1,2479 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGERIUM CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#2F6FED;--orange:#E67E22;--green:#2ECC71;--red:#E74C3C;--yellow:#F1C40F;
+  --bg:#08080E;--bg2:#0F0F18;--bg3:#17171F;--bg4:#1E1E28;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.13);
+  --text:#E8E8F2;--muted:#505065;
+  --fd:'Bebas Neue',sans-serif;--fm:'JetBrains Mono',monospace;--fb:'Barlow',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);min-height:100vh;overflow-x:hidden;}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 50%,rgba(47,111,237,0.04)0%,transparent 55%);pointer-events:none;z-index:0;}
+
+/* ── NAV ── */
+nav{display:flex;align-items:stretch;border-bottom:1px solid var(--border);background:var(--bg2);position:sticky;top:0;z-index:200;}
+.nav-logo{padding:0 16px;border-right:1px solid var(--border);display:flex;align-items:center;height:48px;flex-shrink:0;}
+.nav-logo svg{height:24px;width:auto;}
+.nav-tabs{display:flex;flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nt{font-family:var(--fm);font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:0 16px;height:48px;cursor:pointer;color:var(--muted);border-right:1px solid var(--border);border-bottom:3px solid transparent;border-top:none;border-left:none;background:none;transition:all .2s;white-space:nowrap;flex-shrink:0;}
+.nt:hover{color:var(--text);}
+.nt.active{color:var(--blue);border-bottom-color:var(--blue);background:rgba(47,111,237,.05);}
+.sync-pill{display:flex;align-items:center;gap:7px;padding:0 14px;border-left:1px solid var(--border);flex-shrink:0;}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.sdot.on{background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 2s infinite;}
+.sdot.err{background:var(--red);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.slbl{font-family:var(--fm);font-size:9px;color:var(--muted);letter-spacing:1px;white-space:nowrap;}
+
+/* ── MOBILE NAV ── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:300;background:var(--bg2);border-top:1px solid var(--border);}
+.mob-nav-inner{display:flex;overflow-x:auto;scrollbar-width:none;}
+.mob-nav-inner::-webkit-scrollbar{display:none;}
+.mnt{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 13px;cursor:pointer;border:none;background:none;color:var(--muted);font-family:var(--fm);font-size:7px;letter-spacing:1px;text-transform:uppercase;border-top:2px solid transparent;transition:all .2s;}
+.mnt.active{color:var(--blue);border-top-color:var(--blue);background:rgba(47,111,237,.05);}
+.mnt-ic{font-size:15px;line-height:1;}
+
+@media(max-width:700px){
+  .nav-tabs{display:none;}
+  .slbl{display:none;}
+  .mob-nav{display:block;}
+  .page{padding:12px 12px 68px!important;}
+  .g2,.g3,.g4{grid-template-columns:1fr!important;}
+  .kanban{grid-template-columns:repeat(3,minmax(150px,1fr))!important;}
+}
+
+/* ── PAGES ── */
+.page{display:none;padding:18px 22px;max-width:1600px;margin:0 auto;position:relative;z-index:1;}
+.page.active{display:block;}
+
+/* ── LAYOUT ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.gap{margin-bottom:16px;}
+.sec{font-family:var(--fd);font-size:14px;letter-spacing:4px;color:var(--muted);margin:16px 0 10px;display:flex;align-items:center;gap:10px;}
+.sec::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* ── CARD / STAT ── */
+.card{background:var(--bg2);border:1px solid var(--border);padding:14px 16px;}
+.ch{font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.ch::before{content:'';width:3px;height:9px;background:var(--blue);}
+.stat{background:var(--bg2);border:1px solid var(--border);padding:11px 14px;}
+.sv{font-family:var(--fd);font-size:24px;line-height:1;margin-bottom:2px;}
+.sl{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:1px;}
+
+/* ── BUTTONS ── */
+.btn{font-family:var(--fm);font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:7px 14px;border:none;cursor:pointer;transition:all .2s;}
+.btn-b{background:var(--blue);color:#fff;}.btn-b:hover{background:#3d7ef5;}
+.btn-g{background:transparent;border:1px solid var(--border);color:var(--muted);}.btn-g:hover{border-color:var(--orange);color:var(--orange);}
+.btn-r{background:transparent;border:1px solid rgba(231,76,60,.3);color:var(--red);}
+.btn-sm{padding:4px 9px;font-size:8px;}
+
+/* ══════════════════════════════════════════════════
+   KUNDENKARTE — dynamisch gerendert
+══════════════════════════════════════════════════ */
+.kcard{background:var(--bg2);border:1px solid var(--border);overflow:hidden;margin-bottom:12px;transition:border-color .2s;}
+.kcard:hover{border-color:rgba(47,111,237,.25);}
+.kprio-bar{height:3px;}
+.kprio-1 .kprio-bar{background:var(--orange);}
+.kprio-2 .kprio-bar{background:var(--blue);}
+.kprio-3 .kprio-bar{background:var(--muted);}
+
+/* header */
+.kh{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+.kh-left{flex:1;min-width:0;}
+.kname{font-family:var(--fd);font-size:18px;letter-spacing:2px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.kmeta{font-family:var(--fm);font-size:7px;color:var(--muted);letter-spacing:2px;margin-top:3px;}
+.kh-right{display:flex;gap:5px;align-items:center;flex-shrink:0;}
+.kbadge{font-family:var(--fm);font-size:8px;padding:2px 7px;background:rgba(255,255,255,.05);border:1px solid var(--border);}
+.kbadge-pct{color:var(--orange);}
+.kbadge-fix{color:var(--blue);}
+
+/* progress bar */
+.kprog-wrap{padding:8px 14px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.15);}
+.kprog-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.kprog-lbl{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:1px;}
+.kprog-pct{font-family:var(--fd);font-size:16px;color:var(--green);}
+.kprog-track{height:5px;background:rgba(255,255,255,.06);position:relative;overflow:hidden;}
+.kprog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .5s ease;}
+.kdates{display:flex;gap:14px;margin-top:6px;}
+.kdate{font-family:var(--fm);font-size:8px;}
+.kdate-lbl{color:var(--muted);margin-right:4px;}
+.kdate-val{color:var(--text);}
+.kdate-val.overdue{color:var(--red);}
+
+/* stats grid */
+.kbody{padding:10px 14px;}
+.kstats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:10px;}
+.ks{background:var(--bg3);padding:6px 8px;}
+.ks-l{font-family:var(--fm);font-size:7px;color:var(--muted);letter-spacing:1px;margin-bottom:2px;}
+.ks input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--fd);font-size:18px;width:100%;outline:none;line-height:1;}
+.ks input:focus{border-bottom-color:var(--blue);}
+
+/* billing row */
+.kbill{display:flex;gap:8px;align-items:center;margin-bottom:8px;padding:7px 10px;background:var(--bg3);border-left:3px solid var(--blue);}
+.kbill-lbl{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:1px;min-width:70px;}
+.kbill-val{font-size:12px;font-weight:700;color:var(--blue);}
+.kbill-anteil{font-family:var(--fd);font-size:18px;color:var(--green);margin-left:auto;}
+
+/* paket tag */
+.kpaket{font-family:var(--fm);font-size:8px;letter-spacing:1px;padding:2px 8px;background:rgba(230,126,34,.1);color:var(--orange);border:1px solid rgba(230,126,34,.2);display:inline-block;margin-bottom:8px;}
+
+/* TODOS */
+.ktodo-section{border-top:1px solid var(--border);padding:10px 14px;}
+.ktodo-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.ktodo-title{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+.ktodo-progress{font-family:var(--fm);font-size:8px;color:var(--green);}
+.todo-item{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.todo-item:last-child{border-bottom:none;}
+.todo-cb{width:14px;height:14px;border:1px solid var(--border);background:transparent;cursor:pointer;flex-shrink:0;appearance:none;-webkit-appearance:none;position:relative;transition:all .15s;}
+.todo-cb:checked{background:var(--green);border-color:var(--green);}
+.todo-cb:checked::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--bg);font-weight:700;line-height:14px;text-align:center;}
+.todo-text{font-size:11px;flex:1;cursor:pointer;transition:color .15s;}
+.todo-text.done{color:var(--muted);text-decoration:line-through;}
+.todo-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;padding:0 3px;transition:color .15s;flex-shrink:0;}
+.todo-del:hover{color:var(--red);}
+.todo-add{display:flex;gap:6px;margin-top:7px;}
+.todo-input{flex:1;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:11px;padding:5px 8px;outline:none;}
+.todo-input:focus{border-color:var(--blue);}
+
+/* massnahme / engpass */
+.kmbox{background:var(--bg3);border-left:3px solid var(--orange);padding:6px 10px;font-size:10px;line-height:1.5;color:rgba(255,255,255,.6);margin-bottom:8px;}
+.kmbox strong{display:block;font-family:var(--fm);font-size:7px;letter-spacing:2px;color:var(--orange);margin-bottom:2px;}
+
+/* footer */
+.kfoot{padding:8px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.2);}
+.kfoot-btns{display:flex;gap:6px;}
+.lohnt{font-family:var(--fm);font-size:7px;letter-spacing:1px;padding:3px 8px;text-transform:uppercase;}
+.l-ja{background:rgba(46,204,113,.1);color:var(--green);border:1px solid rgba(46,204,113,.25);}
+.l-nein{background:rgba(231,76,60,.1);color:var(--red);border:1px solid rgba(231,76,60,.25);}
+.l-check{background:rgba(241,196,15,.1);color:var(--yellow);border:1px solid rgba(241,196,15,.25);}
+
+/* ── MODAL ── */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;display:none;align-items:center;justify-content:center;padding:14px;}
+.mbg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);width:580px;max-width:100%;max-height:92vh;overflow-y:auto;}
+.mh{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.mt2{font-family:var(--fd);font-size:17px;letter-spacing:3px;color:var(--blue);}
+.mcl{background:transparent;border:1px solid var(--border);color:var(--muted);width:24px;height:24px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.mcl:hover{border-color:var(--red);color:var(--red);}
+.mbody{padding:18px;}
+.fg{margin-bottom:11px;}
+.fg label{display:block;font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:12px;padding:7px 10px;outline:none;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);}
+.fg select option{background:var(--bg3);}
+.fgr{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mf{padding:11px 18px;border-top:1px solid var(--border);display:flex;gap:7px;justify-content:flex-end;}
+.radio-group{display:flex;gap:0;}
+.radio-opt{flex:1;text-align:center;padding:7px;border:1px solid var(--border);font-family:var(--fm);font-size:9px;letter-spacing:1px;cursor:pointer;color:var(--muted);transition:all .2s;}
+.radio-opt:first-child{border-right:none;}
+.radio-opt.active{background:rgba(47,111,237,.12);border-color:var(--blue);color:var(--blue);}
+.pkg-preview{background:var(--bg3);border:1px solid var(--border);padding:6px 10px;margin-top:4px;font-size:10px;line-height:1.6;color:rgba(255,255,255,.6);display:none;}
+.pkg-preview.show{display:block;}
+
+/* ── CRM ── */
+.crm-bar{display:flex;gap:7px;margin-bottom:11px;align-items:center;flex-wrap:wrap;}
+.csearch{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:12px;padding:6px 11px;outline:none;flex:1;min-width:160px;}
+.csearch:focus{border-color:var(--blue);}
+.cflt{font-family:var(--fm);font-size:8px;letter-spacing:1px;padding:6px 11px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .2s;}
+.cflt:hover,.cflt.active{border-color:var(--blue);color:var(--blue);background:rgba(47,111,237,.07);}
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;}
+.kcol{background:var(--bg2);border:1px solid var(--border);min-height:340px;}
+.kcol-h{padding:8px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.kcol-t{font-family:var(--fm);font-size:8px;letter-spacing:3px;text-transform:uppercase;}
+.kcol-n{font-family:var(--fm);font-size:10px;color:var(--muted);}
+.kcol-b{padding:7px;display:flex;flex-direction:column;gap:5px;}
+.cc{background:var(--bg3);border:1px solid var(--border);padding:8px 9px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;}
+.cc:hover{border-color:rgba(47,111,237,.3);border-left-color:var(--blue);}
+.cc.new-lead{border-left-color:var(--green);animation:newl 3s ease-out forwards;}
+@keyframes newl{0%{background:rgba(46,204,113,.13);}100%{background:var(--bg3);}}
+.ccn{font-size:11px;font-weight:700;margin-bottom:2px;}
+.ccs{font-size:9px;color:var(--muted);margin-bottom:3px;}
+.ccv{font-family:var(--fd);font-size:15px;color:var(--green);}
+.ccm{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.cct{font-family:var(--fm);font-size:7px;letter-spacing:1px;padding:1px 5px;text-transform:uppercase;}
+.ctbl{width:100%;border-collapse:collapse;}
+.ctbl th{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;padding:6px 9px;text-align:left;border-bottom:1px solid var(--border);cursor:pointer;}
+.ctbl td{padding:8px 9px;font-size:11px;border-bottom:1px solid rgba(255,255,255,.02);vertical-align:middle;}
+.ctbl tr:hover td{background:rgba(255,255,255,.015);}
+.sp{font-family:var(--fm);font-size:7px;letter-spacing:1px;padding:2px 6px;text-transform:uppercase;white-space:nowrap;}
+.s-neu{background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border);}
+.s-kontakt{background:rgba(47,111,237,.09);color:var(--blue);border:1px solid rgba(47,111,237,.2);}
+.s-angebot{background:rgba(241,196,15,.09);color:var(--yellow);border:1px solid rgba(241,196,15,.2);}
+.s-verhandlung{background:rgba(230,126,34,.09);color:var(--orange);border:1px solid rgba(230,126,34,.2);}
+.s-closed{background:rgba(46,204,113,.09);color:var(--green);border:1px solid rgba(46,204,113,.2);}
+.s-lost{background:rgba(231,76,60,.09);color:var(--red);border:1px solid rgba(231,76,60,.2);}
+.ai{background:transparent;border:1px solid var(--border);color:var(--muted);padding:2px 6px;cursor:pointer;font-size:11px;transition:all .15s;}
+.ai:hover{border-color:var(--blue);color:var(--blue);}
+
+/* ── WOCHENPLAN ── */
+.wplan{display:grid;grid-template-columns:78px repeat(5,1fr);gap:0;border:1px solid var(--border);overflow:hidden;}
+.wph{font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--muted);padding:7px 6px;background:var(--bg3);border-bottom:1px solid var(--border);text-transform:uppercase;text-align:center;}
+.wph.day{color:var(--text);}.wph.today{color:var(--orange);}
+.ws{padding:4px 5px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);min-height:36px;}
+.ws.tc{font-family:var(--fm);font-size:9px;color:var(--orange);background:var(--bg3);display:flex;align-items:center;justify-content:center;letter-spacing:1px;}
+.wb{border-radius:2px;padding:3px 5px;font-size:9px;line-height:1.3;height:100%;display:flex;align-items:center;}
+.wb-r{background:rgba(46,204,113,.1);color:var(--green);border-left:2px solid var(--green);}
+.wb-o{background:rgba(47,111,237,.1);color:var(--blue);border-left:2px solid var(--blue);}
+.wb-k{background:rgba(230,126,34,.1);color:var(--orange);border-left:2px solid var(--orange);}
+.wb-d{background:rgba(255,255,255,.04);color:var(--muted);border-left:2px solid var(--muted);}
+.wb-c{background:rgba(241,196,15,.08);color:var(--yellow);border-left:2px solid var(--yellow);}
+.wb-x{background:rgba(46,204,113,.05);color:rgba(46,204,113,.6);border-left:2px solid rgba(46,204,113,.3);}
+
+/* ── SHEETS ── */
+.surl{width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fm);font-size:11px;padding:7px 10px;outline:none;}
+.surl:focus{border-color:var(--green);}
+.col-map{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;}
+.cm-item{background:var(--bg3);border:1px solid var(--border);padding:6px 8px;}
+.cm-l{font-family:var(--fm);font-size:7px;color:var(--muted);letter-spacing:1px;margin-bottom:3px;}
+.cm-v input{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--fm);font-size:10px;outline:none;padding:1px 2px;}
+.sync-log{background:var(--bg3);border:1px solid var(--border);padding:9px 13px;max-height:140px;overflow-y:auto;margin-top:9px;}
+.li{font-family:var(--fm);font-size:9px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.03);}
+.li:last-child{border-bottom:none;}
+.lt{color:var(--muted);margin-right:7px;}
+.lok{color:var(--green);}.lwarn{color:var(--yellow);}.lerr{color:var(--red);}
+
+/* ── NOTIF ── */
+.notif-bar{position:fixed;top:54px;right:14px;z-index:500;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+.notif{background:var(--bg2);border:1px solid rgba(46,204,113,.4);border-left:4px solid var(--green);padding:9px 13px;max-width:290px;pointer-events:all;animation:nIn .3s ease;box-shadow:0 4px 18px rgba(0,0,0,.5);}
+@keyframes nIn{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.ntit{font-family:var(--fm);font-size:8px;color:var(--green);letter-spacing:2px;margin-bottom:2px;}
+.nbod{font-size:11px;}
+.ncl{position:absolute;right:6px;top:6px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;}
+
+/* ── KONTROLLE ── */
+.cr{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);}
+.cr:last-child{border-bottom:none;}
+.cq{font-size:11px;font-weight:500;}
+.cbs{display:flex;gap:5px;}
+.cb{font-family:var(--fm);font-size:8px;letter-spacing:1px;padding:3px 9px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .2s;}
+.cb.yes{color:var(--green);}.cb.no{color:var(--red);}
+.cb.yes:hover,.cb.yes.active{background:rgba(46,204,113,.1);border-color:var(--green);}
+.cb.no:hover,.cb.no.active{background:rgba(231,76,60,.1);border-color:var(--red);}
+.verd{margin-top:12px;padding:12px;border:1px solid var(--border);display:none;text-align:center;}
+.verd.show{display:block;}
+.vl{font-family:var(--fd);font-size:24px;letter-spacing:4px;}
+.vs{font-family:var(--fm);font-size:9px;color:var(--muted);margin-top:3px;}
+.wd{padding:8px 10px;border-left:3px solid var(--orange);background:rgba(230,126,34,.04);margin-bottom:6px;font-size:10px;line-height:1.5;}
+.ww{font-family:var(--fm);font-size:7px;color:var(--orange);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--green);color:var(--bg);font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:8px 16px;z-index:3000;opacity:0;transition:opacity .3s;pointer-events:none;}
+.toast.show{opacity:1;}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-family:var(--fm);font-size:10px;letter-spacing:2px;}
+/* ── COCKPIT ── */
+.cockpit-wrap{margin-bottom:18px;}
+.cockpit-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px;}
+.ckpi{background:var(--bg2);border:1px solid var(--border);padding:12px 14px;border-top:3px solid transparent;transition:border-color .2s;}
+.ckpi:hover{border-color:rgba(47,111,237,.3);}
+.ckpi-green{border-top-color:var(--green);}
+.ckpi-blue{border-top-color:var(--blue);}
+.ckpi-orange{border-top-color:var(--orange);}
+.ckpi-yellow{border-top-color:var(--yellow);}
+.ckpi-red{border-top-color:var(--red);}
+.ckpi-muted{border-top-color:var(--muted);}
+.ckpi-val{font-family:var(--fd);font-size:26px;line-height:1;margin-bottom:4px;}
+.ckpi-lbl{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:1px;}
+.cockpit-row2{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.cockpit-card{background:var(--bg2);border:1px solid var(--border);padding:14px 16px;}
+.cc-head{font-family:var(--fm);font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.activity-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.act-item{background:var(--bg3);padding:8px 10px;}
+.act-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);font-family:var(--fd);font-size:22px;width:100%;outline:none;line-height:1;}
+.act-input:focus{border-bottom-color:var(--blue);}
+.act-lbl{font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:1px;margin-top:3px;}
+.act-bar-wrap{height:3px;background:rgba(255,255,255,.05);margin-top:6px;overflow:hidden;}
+.act-bar{height:100%;width:0%;transition:width .5s;}
+.act-target{font-family:var(--fm);font-size:8px;color:var(--muted);margin-top:2px;}
+.forecast-wrap{text-align:center;}
+.forecast-big{font-family:var(--fd);font-size:36px;color:var(--green);line-height:1;margin-bottom:4px;}
+.forecast-sub{font-family:var(--fm);font-size:9px;color:var(--muted);margin-bottom:12px;}
+.forecast-bar-wrap{margin-bottom:10px;}
+.topk-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);}
+.topk-item:last-child{border-bottom:none;}
+.topk-rank{font-family:var(--fd);font-size:20px;color:var(--muted);min-width:24px;}
+.topk-name{font-size:12px;font-weight:700;flex:1;}
+.topk-val{font-family:var(--fd);font-size:16px;color:var(--green);}
+@keyframes slideDown{from{transform:translateY(-100%);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@media(max-width:900px){.cockpit-kpis{grid-template-columns:repeat(3,1fr);}.cockpit-row2{grid-template-columns:1fr;}}
+@media(max-width:700px){.cockpit-kpis{grid-template-columns:repeat(2,1fr);}}
+
+.empty-state .es-icon{font-size:32px;margin-bottom:10px;}
+</style>
+</head>
+<body>
+
+<div class="notif-bar" id="notifBar"></div>
+
+<!-- ══ NAV ══ -->
+<nav>
+  <div class="nav-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 42" fill="none">
+      <g transform="matrix(1,0,0,1,6,25)"><g fill="#fff">
+        <g transform="translate(0.6,0)"><path d="M1.09 0L11.59-21h3.6L25.72 0h-3.84l-1.72-3.38H6.63L4.91 0zm12.3-16.7L8.19-6.47h10.4z"/></g>
+        <g transform="translate(33.54,0)"><path d="M22.91-11.3V0h-1.86l-.83-2.02c-.9.86-1.96 1.5-3.17 1.94-1.2.43-2.45.64-3.75.64-1.34 0-2.68-.22-4.05-.67-1.35-.46-2.6-1.14-3.75-2.05-1.15-.9-2.06-2.03-2.75-3.4C1.72-6.94 1.72-8.53 1.72-10.34c0-1.81.34-3.4 1.04-4.77.7-1.37 1.62-2.51 2.75-3.42 1.13-.9 2.38-1.58 3.75-2.03 1.37-.45 2.72-.67 4.04-.67 1.96 0 3.79.39 5.5 1.16 1.72.76 3.13 1.86 4.23 3.3l-2.84 2.31c-.78-1-1.8-1.8-3.05-2.37-1.24-.58-2.48-.87-3.72-.87-1.74 0-3.2.36-4.37 1.08-1.17.72-2.04 1.64-2.63 2.77-.58 1.12-.88 2.31-.88 3.55 0 1.22.3 2.4.88 3.53.59 1.13 1.46 2.06 2.63 2.78 1.17.71 2.63 1.07 4.37 1.07 1.28 0 2.37-.25 3.25-.75.88-.51 1.56-1.18 2.02-2.02.47-.84.7-1.75.7-2.73v-.36h-5.3v-2.48z"/></g>
+        <g transform="translate(64.14,0)"><path d="M5.89-3.11h14.83V0H2.28v-20.69h18.27v3.1H5.89v5.69h12.64v3.09H5.89z"/></g>
+        <g transform="translate(92.47,0)"><path d="M2.28 0v-20.69h12.14c1.5 0 2.74.31 3.73.91 1 .59 1.74 1.37 2.23 2.32.5.94.75 1.94.75 2.98 0 .84-.17 1.67-.51 2.47-.34.8-.84 1.51-1.5 2.12-.67.61-1.52 1.04-2.55 1.31L23.36 0h-4.56l-6.17-8.31H5.89V0zm3.61-17.56v6.12h7.89c1.2 0 2.09-.31 2.68-.94.6-.63.9-1.33.9-2.12 0-.77-.3-1.47-.9-2.11-.59-.64-1.48-.95-2.68-.95z"/></g>
+        <g transform="translate(122.95,0)"><path d="M2.28 0v-20.69h3.61V0z"/></g>
+        <g transform="translate(137.24,0)"><path d="M1.98-8.19v-12.5h3.61v12.5c0 1.2.32 2.2.95 3 .64.8 1.47 1.4 2.47 1.79 1.01.39 2.06.58 3.14.58 1.1 0 2.15-.19 3.14-.58 1-.39 1.82-.99 2.45-1.79.64-.8.96-1.8.96-3v-12.5h3.59v12.5c0 1.48-.29 2.78-.86 3.91-.56 1.12-1.33 2.06-2.31 2.8-.98.73-2.07 1.28-3.27 1.66-1.2.37-2.44.56-3.7.56-1.26 0-2.49-.19-3.7-.56-1.22-.38-2.31-.93-3.27-1.66-.98-.74-1.75-1.68-2.32-2.8-.56-1.13-.84-2.43-.84-3.91z"/></g>
+        <g transform="translate(167.69,0)"><path d="M2.28 0v-20.69h3.61l9.09 15.61 9.08-15.61h3.64V0h-3.64v-14.42L15.64 0h-1.33L5.89-14.42V0z"/></g>
+      </g></g>
+      <rect x="6" y="28" width="64" height="3" fill="#2f6ed0"/>
+      <rect x="73" y="28" width="64" height="3" fill="#e98128"/>
+      <rect x="140" y="28" width="64" height="3" fill="#1fae6a"/>
+      <text x="115" y="40" font-family="Arial,sans-serif" font-size="5.5" fill="#fff" text-anchor="middle" letter-spacing="2" opacity="0.55">IT-SOCIALS-AI</text>
+    </svg>
+  </div>
+  <div class="nav-tabs">
+    <button class="nt active" onclick="nav('kunden',this)">Kunden</button>
+    <button class="nt" onclick="nav('crm',this)">CRM</button>
+    <button class="nt" onclick="nav('social',this)">📱 Social Media</button>
+    <button class="nt" onclick="nav('kalender',this)">📅 Kalender</button>
+    <button class="nt" onclick="nav('stripe',this)">💳 Stripe</button>
+    <button class="nt" onclick="nav('kontrolle',this)">Kontrolle</button>
+    <button class="nt" onclick="nav('sheets',this)">⚙ Einstellungen</button>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px;padding:0 12px;border-left:1px solid var(--border);">
+    <button onclick="nav('crm',document.querySelector('.nt'))" style="position:relative;background:transparent;border:none;cursor:pointer;padding:4px 6px;" title="Offene Erinnerungen" id="reminderBtn" onclick="showReminders()">
+      <span style="font-size:16px;">🔔</span>
+      <span id="reminderBadge" style="display:none;position:absolute;top:0;right:0;background:var(--red);color:#fff;font-family:var(--fm);font-size:7px;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center;padding:0 3px;">0</span>
+    </button>
+  </div>
+  <div class="sync-pill">
+    <div class="sdot" id="sdot"></div>
+    <span class="slbl" id="slbl">SYNC AUS</span>
+  </div>
+</nav>
+
+<!-- MOBILE NAV -->
+<div class="mob-nav"><div class="mob-nav-inner">
+  <button class="mnt active" onclick="nav('kunden',this)"><span class="mnt-ic">👥</span>Kunden</button>
+  <button class="mnt" onclick="nav('crm',this)"><span class="mnt-ic">📊</span>CRM</button>
+  <button class="mnt" onclick="nav('social',this)"><span class="mnt-ic">📱</span>Social</button>
+  <button class="mnt" onclick="nav('kalender',this)"><span class="mnt-ic">📅</span>Kalender</button>
+  <button class="mnt" onclick="nav('stripe',this)"><span class="mnt-ic">💳</span>Stripe</button>
+  <button class="mnt" onclick="nav('kontrolle',this)"><span class="mnt-ic">✅</span>Kontrolle</button>
+  <button class="mnt" onclick="nav('sheets',this)"><span class="mnt-ic">⚙</span>Einstellungen</button>
+</div></div>
+
+<!-- ══════════════════════════════════════ KUNDEN ══ -->
+<div class="page active" id="page-kunden">
+
+  <!-- COCKPIT -->
+  <div class="cockpit-wrap gap">
+    <!-- ROW 1: KPIs -->
+    <div class="cockpit-kpis">
+      <div class="ckpi ckpi-green"><div class="ckpi-val" id="k-gesamt">0 €</div><div class="ckpi-lbl">Mein Gesamtanteil</div></div>
+      <div class="ckpi ckpi-blue"><div class="ckpi-val" id="k-pipeline">0 €</div><div class="ckpi-lbl">Pipeline-Wert</div></div>
+      <div class="ckpi ckpi-orange"><div class="ckpi-val" id="c-woche">0 €</div><div class="ckpi-lbl">Umsatz diese Woche</div></div>
+      <div class="ckpi ckpi-yellow"><div class="ckpi-val" id="c-cvr">0%</div><div class="ckpi-lbl">Abschlussrate (CVR)</div></div>
+      <div class="ckpi ckpi-muted"><div class="ckpi-val" id="k-count">0</div><div class="ckpi-lbl">Aktive Kunden</div></div>
+      <div class="ckpi ckpi-red"><div class="ckpi-val" id="k-ziel">20.000 €</div><div class="ckpi-lbl">Ziel offen</div></div>
+    </div>
+    <!-- ROW 2: Aktivitäten + Forecast + Top-Kunden -->
+    <div class="cockpit-row2">
+      <!-- AKTIVITÄTEN -->
+      <div class="cockpit-card">
+        <div class="cc-head">AKTIVITÄTEN DIESE WOCHE</div>
+        <div class="activity-grid">
+          <div class="act-item">
+            <input class="act-input" type="number" id="act-outreach" value="0" min="0" oninput="saveActivity()">
+            <div class="act-lbl">Outreach</div>
+            <div class="act-bar-wrap"><div class="act-bar" id="bar-outreach" style="background:var(--blue)"></div></div>
+            <div class="act-target">/ 100</div>
+          </div>
+          <div class="act-item">
+            <input class="act-input" type="number" id="act-calls" value="0" min="0" oninput="saveActivity()">
+            <div class="act-lbl">Calls</div>
+            <div class="act-bar-wrap"><div class="act-bar" id="bar-calls" style="background:var(--green)"></div></div>
+            <div class="act-target">/ 10</div>
+          </div>
+          <div class="act-item">
+            <input class="act-input" type="number" id="act-followups" value="0" min="0" oninput="saveActivity()">
+            <div class="act-lbl">Follow-ups</div>
+            <div class="act-bar-wrap"><div class="act-bar" id="bar-followups" style="background:var(--orange)"></div></div>
+            <div class="act-target">/ 20</div>
+          </div>
+          <div class="act-item">
+            <input class="act-input" type="number" id="act-abschluesse" value="0" min="0" oninput="saveActivity()">
+            <div class="act-lbl">Abschlüsse</div>
+            <div class="act-bar-wrap"><div class="act-bar" id="bar-abschluesse" style="background:var(--yellow)"></div></div>
+            <div class="act-target">/ 2</div>
+          </div>
+        </div>
+      </div>
+      <!-- FORECAST -->
+      <div class="cockpit-card">
+        <div class="cc-head">FORECAST 30 TAGE</div>
+        <div class="forecast-wrap">
+          <div class="forecast-big" id="c-forecast">0 €</div>
+          <div class="forecast-sub">Potenzial aus Pipeline</div>
+          <div class="forecast-bar-wrap">
+            <div style="display:flex;justify-content:space-between;font-family:var(--fm);font-size:8px;color:var(--muted);margin-bottom:4px;">
+              <span>0 €</span><span>20.000 €</span>
+            </div>
+            <div style="height:8px;background:rgba(255,255,255,.06);position:relative;overflow:hidden;">
+              <div id="forecast-bar" style="height:100%;background:linear-gradient(90deg,var(--blue),var(--green));transition:width .6s;width:0%"></div>
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="flex:1;background:var(--bg3);padding:8px;text-align:center;"><div style="font-family:var(--fd);font-size:16px;color:var(--green)" id="c-hot">0</div><div style="font-family:var(--fm);font-size:7px;color:var(--muted);">HOT DEALS</div></div>
+            <div style="flex:1;background:var(--bg3);padding:8px;text-align:center;"><div style="font-family:var(--fd);font-size:16px;color:var(--orange)" id="c-offen">0</div><div style="font-family:var(--fm);font-size:7px;color:var(--muted);">OFFEN</div></div>
+          </div>
+        </div>
+      </div>
+      <!-- TOP KUNDEN -->
+      <div class="cockpit-card">
+        <div class="cc-head">TOP KUNDEN NACH ERTRAG</div>
+        <div id="c-topkunden"></div>
+      </div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="font-family:var(--fm);font-size:8px;letter-spacing:2px;color:var(--muted);">SORTIERUNG:</div>
+    <button class="cflt active" id="ksort-datum" onclick="setKundenSort('datum',this)">ZULETZT HINZUGEFUGT</button>
+    <button class="cflt" id="ksort-umsatz" onclick="setKundenSort('umsatz',this)">UMSATZ</button>
+    <button class="cflt" id="ksort-progress" onclick="setKundenSort('progress',this)">FORTSCHRITT</button>
+    <button class="cflt" id="ksort-prio" onclick="setKundenSort('prio',this)">PRIORITAT</button>
+    <div style="flex:1;"></div>
+    <button class="btn btn-b" onclick="openKundeModal()">+ KUNDE ANLEGEN</button>
+  </div>
+  <div id="kundenList"></div>
+</div>
+
+<!-- ══════════════════════════════════════ KALENDER ══ -->
+<div class="page" id="page-wochenplan">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="font-family:var(--fd);font-size:18px;letter-spacing:3px;color:var(--text);">GOOGLE KALENDER</div>
+    <div style="flex:1;"></div>
+    <a id="calDirectBtn" href="https://calendar.google.com" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--blue);color:#fff;text-decoration:none;">↗ ÖFFNEN</a>
+    <a href="https://calendly.com" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--bg3);color:var(--muted);text-decoration:none;border:1px solid var(--border);">🔗 CALENDLY</a>
+  </div>
+  <div id="calEmbedMain" style="background:var(--bg2);border:1px solid var(--border);min-height:500px;display:flex;align-items:center;justify-content:center;">
+    <div style="text-align:center;color:var(--muted);font-family:var(--fm);font-size:10px;letter-spacing:2px;line-height:2;">
+      <div style="font-size:32px;margin-bottom:12px;">📅</div>
+      Kalender-URL noch nicht eingetragen.<br>
+      Gehe zu ⚙ Einstellungen → Google Kalender
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ SOCIAL MEDIA ══ -->
+<div class="page" id="page-social">
+
+  <!-- TOOLBAR -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="font-family:var(--fd);font-size:18px;letter-spacing:3px;">SOCIAL MEDIA</div>
+    <div style="flex:1;"></div>
+    <a href="https://business.facebook.com" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:1px;padding:7px 12px;background:rgba(47,111,237,.15);border:1px solid rgba(47,111,237,.3);color:var(--blue);text-decoration:none;">↗ META BUSINESS</a>
+    <a id="igLink" href="https://www.instagram.com/agerium.de" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:1px;padding:7px 12px;background:rgba(230,126,34,.1);border:1px solid rgba(230,126,34,.25);color:var(--orange);text-decoration:none;">↗ INSTAGRAM AGERIUM</a>
+    <button class="btn btn-b" onclick="openContentModal()">+ CONTENT</button>
+  </div>
+
+  <div class="g2 gap">
+
+    <!-- CONTENT KALENDER -->
+    <div style="grid-column:1/-1;">
+      <div class="sec">Content-Kalender</div>
+      <!-- FILTER -->
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <button class="cflt active" onclick="filterContent('all',this)">ALLE</button>
+        <button class="cflt" onclick="filterContent('geplant',this)">GEPLANT</button>
+        <button class="cflt" onclick="filterContent('in_produktion',this)">IN PRODUKTION</button>
+        <button class="cflt" onclick="filterContent('gepostet',this)">GEPOSTET</button>
+        <button class="cflt" onclick="filterContent('reel',this)">REEL</button>
+        <button class="cflt" onclick="filterContent('post',this)">POST</button>
+        <button class="cflt" onclick="filterContent('story',this)">STORY</button>
+      </div>
+      <div id="contentGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;"></div>
+      <div id="contentEmpty" style="display:none;padding:40px;text-align:center;color:var(--muted);font-family:var(--fm);font-size:10px;letter-spacing:2px;">Noch kein Content geplant. Klick auf + CONTENT.</div>
+    </div>
+
+    <!-- POSTING-PLAN -->
+    <div>
+      <div class="sec">Posting-Plan diese Woche</div>
+      <div class="card gap">
+        <div class="ch">Google Kalender URL</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">
+          Google Kalender → Einstellungen → Kalender auswählen → Einbettungscode → src="" URL kopieren
+        </div>
+        <div style="display:flex;gap:7px;margin-bottom:8px;">
+          <input class="surl" type="url" id="calUrl" placeholder="https://calendar.google.com/calendar/embed?src=..." style="font-size:11px;">
+          <button class="btn btn-b" onclick="saveCalUrl()">SPEICHERN</button>
+        </div>
+        <div style="display:flex;gap:7px;">
+          <a id="calOpenLink" href="https://calendar.google.com" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--blue);color:#fff;text-decoration:none;">📅 GOOGLE KALENDER ÖFFNEN</a>
+          <a href="https://calendly.com" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--bg3);color:var(--muted);text-decoration:none;border:1px solid var(--border);">🔗 CALENDLY</a>
+          <a href="https://app.lexware.de" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--bg3);color:var(--muted);text-decoration:none;border:1px solid var(--border);">📋 LEXWARE</a>
+        </div>
+      </div>
+      <div class="card">
+        <div id="postingPlan"></div>
+        <button class="btn btn-b" style="width:100%;margin-top:10px;" onclick="renderPostingPlan()">🔄 AKTUALISIEREN</button>
+      </div>
+    </div>
+
+    <!-- DREH-TERMINE -->
+    <div>
+      <div class="sec">Dreh-Termine</div>
+      <div class="card">
+        <div id="drehTermine"></div>
+        <button class="btn btn-b" style="width:100%;margin-top:10px;" onclick="openDrehModal()">+ DREH EINTRAGEN</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ CRM ══ -->
+<div class="page" id="page-crm">
+  <!-- OVERDUE FOLLOW-UPS BANNER -->
+  <div id="overdueBar" style="display:none;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-left:4px solid var(--red);padding:10px 14px;margin-bottom:12px;">
+    <div style="font-family:var(--fm);font-size:9px;color:var(--red);letter-spacing:2px;margin-bottom:6px;">⚠ ÜBERFÄLLIGE FOLLOW-UPS</div>
+    <div id="overdueList" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+  </div>
+  <div class="crm-bar">
+    <input class="csearch" type="text" placeholder="Name, Firma, Angebot..." oninput="renderCRM()" id="crmSearch">
+    <button class="cflt active" onclick="fStage('all',this)">ALLE</button>
+    <button class="cflt" onclick="fStage('neu',this)">NEU</button>
+    <button class="cflt" onclick="fStage('kontakt',this)">KONTAKT</button>
+    <button class="cflt" onclick="fStage('angebot',this)">ANGEBOT</button>
+    <button class="cflt" onclick="fStage('verhandlung',this)">VERHANDLUNG</button>
+    <button class="cflt" onclick="fStage('closed',this)">CLOSED</button>
+    <button class="cflt" onclick="fStage('lost',this)">LOST</button>
+    <button class="btn btn-g" onclick="toggleView(this)">☰ LISTE</button>
+    <button class="btn btn-b" onclick="openLeadModal()">+ LEAD</button>
+  </div>
+  <div id="kanbanView">
+    <div class="kanban">
+      <div class="kcol"><div class="kcol-h"><span class="kcol-t" style="color:var(--muted)">NEU</span><span class="kcol-n" id="cnt-neu">0</span></div><div class="kcol-b" id="kb-neu"></div></div>
+      <div class="kcol"><div class="kcol-h"><span class="kcol-t" style="color:var(--blue)">KONTAKT</span><span class="kcol-n" id="cnt-kontakt">0</span></div><div class="kcol-b" id="kb-kontakt"></div></div>
+      <div class="kcol"><div class="kcol-h"><span class="kcol-t" style="color:var(--yellow)">ANGEBOT</span><span class="kcol-n" id="cnt-angebot">0</span></div><div class="kcol-b" id="kb-angebot"></div></div>
+      <div class="kcol"><div class="kcol-h"><span class="kcol-t" style="color:var(--orange)">VERHANDLUNG</span><span class="kcol-n" id="cnt-verhandlung">0</span></div><div class="kcol-b" id="kb-verhandlung"></div></div>
+      <div class="kcol"><div class="kcol-h"><span class="kcol-t" style="color:var(--green)">CLOSED</span><span class="kcol-n" id="cnt-closed">0</span></div><div class="kcol-b" id="kb-closed"></div></div>
+    </div>
+  </div>
+  <div id="listView" style="display:none;overflow-x:auto;">
+    <table class="ctbl"><thead><tr>
+      <th onclick="sortC('name')">NAME</th><th onclick="sortC('firma')">FIRMA</th>
+      <th onclick="sortC('paket')">PAKET</th><th onclick="sortC('wert')">WERT</th>
+      <th onclick="sortC('stage')">STATUS</th><th>QUELLE</th><th>NÄCHSTER SCHRITT</th><th></th>
+    </tr></thead><tbody id="crmTbody"></tbody></table>
+  </div>
+  <div class="g4" style="margin-top:12px;">
+    <div class="stat"><div class="sv" style="color:var(--green)" id="cs-total">0 €</div><div class="sl">Pipeline Gesamt</div></div>
+    <div class="stat"><div class="sv" style="color:var(--orange)" id="cs-hot">0 €</div><div class="sl">Verhandlung</div></div>
+    <div class="stat"><div class="sv" style="color:var(--blue)" id="cs-closed">0 €</div><div class="sl">Closed</div></div>
+    <div class="stat"><div class="sv" id="cs-count">0</div><div class="sl">Aktive Leads</div></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ GOOGLE SHEETS ══ -->
+<div class="page" id="page-sheets">
+  <div class="g2">
+    <div>
+      <div class="sec">Verbindung</div>
+      <div class="card gap">
+        <div class="ch">Google Sheets API</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:10px;">
+          Verbinde dein Google Apps Script als Web-App.<br>
+          Erwartet: <span style="font-family:var(--fm);color:var(--blue);">{ ok: true, leads: [...] }</span><br>
+          Auto-Refresh alle <strong style="color:var(--text);">30 Sekunden</strong>.
+        </div>
+        <div style="font-family:var(--fm);font-size:7px;color:var(--muted);letter-spacing:2px;margin-bottom:5px;">GOOGLE SHEETS API</div>
+        <div style="display:flex;gap:7px;margin-bottom:12px;">
+          <input class="surl" type="url" id="sheetsUrl"
+            placeholder="https://script.google.com/macros/s/.../exec"
+            style="font-family:var(--fm);font-size:11px;">
+          <button class="btn btn-b" onclick="startSync()" id="btnSync">SYNC</button>
+          <button class="btn btn-g" onclick="stopSync()">STOP</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);margin-bottom:10px;">
+          <div class="sdot" id="sdotPage"></div>
+          <span style="font-family:var(--fm);font-size:10px;letter-spacing:1px;" id="slblPage">NICHT VERBUNDEN</span>
+          <span style="font-family:var(--fm);font-size:9px;color:var(--muted);margin-left:auto;">Letzter Sync: <span id="lastSyncTime">—</span></span>
+        </div>
+        <div id="apiErrorBox" style="display:none;padding:9px 12px;background:rgba(231,76,60,.08);border:1px solid rgba(231,76,60,.25);border-left:3px solid var(--red);font-family:var(--fm);font-size:9px;color:var(--red);line-height:1.7;margin-bottom:10px;word-break:break-all;"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:11px;">Browser-Benachrichtigungen</span>
+          <button class="btn btn-b btn-sm" onclick="reqNotif()" id="notifBtn">ERLAUBEN</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch">Apps Script einrichten</div>
+        <div style="font-size:11px;line-height:2.0;color:rgba(255,255,255,.6);">
+          1. <a href="https://script.google.com" target="_blank" style="color:var(--blue);">script.google.com</a> → Neues Projekt<br>
+          2. Code.gs ersetzen mit dem Code unten<br>
+          3. Bereitstellen → Web-App → Zugriff: <strong style="color:var(--text);">Jeder</strong><br>
+          4. Web-App-URL kopieren → oben einfügen → SYNC
+        </div>
+        <div style="margin-top:10px;background:var(--bg3);border:1px solid var(--border);padding:10px 12px;font-family:var(--fm);font-size:9px;color:var(--muted);line-height:1.9;white-space:pre-wrap;">var SHEET_ID = "1DYu-pgwlOLCv-9OlyggfQAvgMC7ZBcw_z5d-_LYFeXY";
+
+function doGet(e) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+  if (data.length &lt; 2) return respond({ok:true,leads:[]});
+  var headers = data[0];
+  var leads = [];
+  for (var i = 1; i &lt; data.length; i++) {
+    var row = data[i]; var lead = {}; var ok = false;
+    for (var j = 0; j &lt; headers.length; j++) {
+      var v = row[j]!=null ? String(row[j]).trim() : "";
+      lead[String(headers[j]).trim().toLowerCase()] = v;
+      if(v) ok = true;
+    }
+    if(!ok) continue;
+    if(!lead["name"]&amp;&amp;!lead["firma"]) continue;
+    if(!lead["id"]) lead["id"] = "row_"+(i+1);
+    leads.push(lead);
+  }
+  return respond({ok:true,leads:leads});
+}
+
+function doPost(e) {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheets()[0];
+  var body = JSON.parse(e.postData.contents);
+  var action = body.action || "upsert";
+  if(action === "delete") {
+    deleteRowById(sheet, String(body.id));
+    return respond({ok:true,message:"deleted"});
+  }
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0].map(function(h){return String(h).trim().toLowerCase();});
+  var idCol = headers.indexOf("id");
+  var targetRow = -1;
+  if(idCol &gt;= 0 &amp;&amp; body.id){
+    for(var i=1;i&lt;data.length;i++){
+      if(String(data[i][idCol]).trim()===String(body.id).trim()){targetRow=i+1;break;}
+    }
+  }
+  var row = headers.map(function(h){return body[h]!==undefined?body[h]:"";});
+  if(targetRow &gt; 0){sheet.getRange(targetRow,1,1,row.length).setValues([row]);}
+  else{sheet.appendRow(row);}
+  return respond({ok:true,message:targetRow&gt;0?"updated":"inserted"});
+}
+
+function deleteRowById(sheet,id){
+  var data=sheet.getDataRange().getValues();
+  var hdrs=data[0].map(function(h){return String(h).trim().toLowerCase();});
+  var ic=hdrs.indexOf("id"); if(ic&lt;0)return;
+  for(var i=data.length-1;i&gt;=1;i--){
+    if(String(data[i][ic]).trim()===id){sheet.deleteRow(i+1);return;}
+  }
+}
+
+function respond(data){
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+<span style="color:var(--green);">// Sheet-Spalten (Zeile 1 = Header):
+// id | name | firma | angebot | wert | stage
+// telefon | email | datum | quelle | next | followup | notiz</span></div>
+      </div>
+      <div class="card">
+        <div class="ch">Funnel-Logik</div>
+        <div style="font-size:11px;line-height:2.1;color:rgba(255,255,255,.6);">
+          📱 Organisch/Ads → Landingpage<br>
+          📅 Landingpage → Calendly<br>
+          ⚡ Calendly → SEPI Automatisierung<br>
+          📊 SEPI → Google Sheets<br>
+          🔄 Sheets → CRM (alle 60s)<br>
+          🔔 CRM → Browser-Benachrichtigung
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="sec">Sync-Log</div>
+      <div class="g3 gap">
+        <div class="stat"><div class="sv" style="color:var(--green);font-size:20px;" id="sh-imp">0</div><div class="sl">Importiert</div></div>
+        <div class="stat"><div class="sv" style="color:var(--yellow);font-size:20px;" id="sh-dup">0</div><div class="sl">Duplikate</div></div>
+        <div class="stat"><div class="sv" style="color:var(--blue);font-size:20px;" id="sh-syn">0</div><div class="sl">Sync-Läufe</div></div>
+      </div>
+      <button class="btn btn-g" style="width:100%;margin-bottom:8px;" onclick="manualSync()">JETZT SYNC AUSFÜHREN</button>
+      <div class="sync-log" id="syncLog">
+        <div class="li"><span class="lt">--:--</span><span class="lok">Bereit. URL eingeben und Sync starten.</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ KALENDER ══ -->
+<div class="page" id="page-kalender">
+  <div class="sec">Google Kalender</div>
+  <div class="g2" style="margin-bottom:14px;">
+    <div class="card">
+      <div class="ch">Kalender-URL eintragen</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:10px;">
+        Öffne Google Kalender → Einstellungen → Kalender → Einbettungscode.<br>
+        Kopiere die <strong style="color:var(--text);">src=""</strong> URL und füge sie unten ein.
+      </div>
+      <div style="display:flex;gap:7px;margin-bottom:8px;">
+        <input class="surl" type="url" id="calUrl" placeholder="https://calendar.google.com/calendar/embed?src=..." style="font-size:11px;">
+        <button class="btn btn-b" onclick="saveCalUrl()">SPEICHERN</button>
+      </div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;">
+        <a id="calOpenLink" href="https://calendar.google.com" target="_blank"
+          style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--blue);color:#fff;text-decoration:none;transition:background .2s;"
+          onmouseover="this.style.background='#3d7ef5'" onmouseout="this.style.background='var(--blue)'">
+          📅 GOOGLE KALENDER ÖFFNEN
+        </a>
+        <a href="https://calendly.com" target="_blank"
+          style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--bg3);color:var(--muted);text-decoration:none;border:1px solid var(--border);transition:all .2s;"
+          onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+          🔗 CALENDLY ÖFFNEN
+        </a>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ch">Kompatibilität</div>
+      <div style="font-size:11px;line-height:2.1;color:rgba(255,255,255,.6);">
+        ✓ Google Kalender (eingebettet)<br>
+        ✓ Calendly → sync mit Google Kalender<br>
+        ✓ Termine erscheinen automatisch<br>
+        ✓ Mobile-kompatibel<br>
+        <span style="color:var(--muted);font-size:10px;">Tipp: In Calendly unter "Calendar Connection" dein Google Konto verbinden</span>
+      </div>
+    </div>
+  </div>
+  <!-- EINGEBETTETER KALENDER -->
+  <div id="calEmbed" style="background:var(--bg2);border:1px solid var(--border);overflow:hidden;">
+    <div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fm);font-size:10px;letter-spacing:2px;">
+      Kalender-URL oben eintragen um den Kalender einzubetten
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ STRIPE ══ -->
+<div class="page" id="page-stripe">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <div style="font-family:var(--fd);font-size:18px;letter-spacing:3px;">STRIPE & FINANZEN</div>
+    <div style="flex:1;"></div>
+    <a href="https://dashboard.stripe.com" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:rgba(99,91,255,.2);border:1px solid rgba(99,91,255,.4);color:#8b83ff;text-decoration:none;">↗ STRIPE DASHBOARD</a>
+    <a id="lexwareLink" href="https://app.lexware.de" target="_blank" style="font-family:var(--fm);font-size:9px;letter-spacing:2px;padding:7px 14px;background:var(--bg3);border:1px solid var(--border);color:var(--muted);text-decoration:none;">↗ LEXWARE</a>
+  </div>
+
+  <div class="g2 gap">
+    <!-- STRIPE EMBED -->
+    <div style="grid-column:1/-1;" id="stripeEmbedWrap">
+      <div id="stripeEmbed" style="background:var(--bg2);border:1px solid var(--border);overflow:hidden;">
+        <div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fm);font-size:10px;letter-spacing:2px;line-height:2;">
+          <div style="font-size:32px;margin-bottom:12px;">💳</div>
+          Stripe kann nicht direkt eingebettet werden (Sicherheitsrichtlinie von Stripe).<br>
+          Nutze den direkten Link oben. Daten hier manuell erfassen.
+        </div>
+      </div>
+    </div>
+
+    <!-- ZAHLUNGEN MANUELL -->
+    <div>
+      <div class="sec">Zahlungen erfassen</div>
+      <div class="card">
+        <div class="fg"><label>Kunde</label><input type="text" id="pay-kunde" placeholder="Kundenname"></div>
+        <div class="fg" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div><label style="font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:4px;">BETRAG (€)</label><input type="number" id="pay-betrag" placeholder="0" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:12px;padding:7px 10px;outline:none;"></div>
+          <div><label style="font-family:var(--fm);font-size:8px;color:var(--muted);letter-spacing:2px;display:block;margin-bottom:4px;">STATUS</label>
+            <select id="pay-status" style="width:100%;background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fb);font-size:12px;padding:7px 10px;outline:none;">
+              <option value="offen">Offen</option>
+              <option value="bezahlt">Bezahlt</option>
+              <option value="überfällig">Überfällig</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>Beschreibung</label><input type="text" id="pay-desc" placeholder="z.B. Website Starter Monat 1"></div>
+        <button class="btn btn-b" style="width:100%;" onclick="savePayment()">ZAHLUNG SPEICHERN</button>
+      </div>
+    </div>
+
+    <!-- ZAHLUNGEN LISTE -->
+    <div>
+      <div class="sec">Zahlungsübersicht</div>
+      <div class="card" style="padding:0;">
+        <div id="paymentList" style="max-height:400px;overflow-y:auto;"></div>
+        <div style="padding:12px 14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:var(--fm);font-size:9px;color:var(--muted);">GESAMT OFFEN</span>
+          <span style="font-family:var(--fd);font-size:20px;color:var(--red);" id="payTotalOffen">0 €</span>
+        </div>
+        <div style="padding:0 14px 12px;display:flex;justify-content:space-between;align-items:center;">
+          <span style="font-family:var(--fm);font-size:9px;color:var(--muted);">GESAMT BEZAHLT</span>
+          <span style="font-family:var(--fd);font-size:20px;color:var(--green);" id="payTotalBezahlt">0 €</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ KONTROLLE ══ -->
+<div class="page" id="page-kontrolle">
+  <div class="g2">
+    <div class="card">
+      <div class="ch">A) AGERIUM – Woche</div>
+      <div style="font-size:12px;">
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0;"><span>Outreach (Ziel: 100)</span><input type="number" style="background:var(--bg3);border:1px solid var(--border);color:var(--green);font-family:var(--fm);font-size:12px;width:65px;padding:2px 5px;outline:none;text-align:right;" id="wk-out"></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0;"><span>Gespräche (Ziel: 10) <span style="font-family:var(--fm);font-size:8px;color:var(--blue);" id="wk-g-auto"></span></span><input type="number" style="background:var(--bg3);border:1px solid var(--border);color:var(--blue);font-family:var(--fm);font-size:12px;width:65px;padding:2px 5px;outline:none;text-align:right;" id="wk-g"></div>
+        <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding:7px 0;"><span>Abschlüsse (Ziel: 2) <span style="font-family:var(--fm);font-size:8px;color:var(--green);" id="wk-a-auto"></span></span><input type="number" style="background:var(--bg3);border:1px solid var(--border);color:var(--orange);font-family:var(--fm);font-size:12px;width:65px;padding:2px 5px;outline:none;text-align:right;" id="wk-a"></div>
+        <div style="display:flex;justify-content:space-between;padding:7px 0;"><span>Umsatz (Ziel: 3.300 €) <span style="font-family:var(--fm);font-size:8px;color:var(--green);" id="wk-u-auto"></span></span><input type="number" style="background:var(--bg3);border:1px solid var(--border);color:var(--green);font-family:var(--fm);font-size:12px;width:90px;padding:2px 5px;outline:none;text-align:right;" id="wk-u"></div>
+        <button class="btn btn-g" style="width:100%;margin-top:8px;font-size:9px;" onclick="autoFillKontrolle()">📊 AUTO-AUSFÜLLEN AUS CRM</button>
+      </div>
+      <button class="btn btn-b" style="width:100%;margin-top:10px;" onclick="calcKontrolle()">AUSWERTEN</button>
+      <div class="verd" id="vbox"><div class="vl" id="vl"></div><div class="vs" id="vs"></div></div>
+    </div>
+    <div>
+      <div class="card gap"><div class="ch">B) Kunden – Bewertung</div><div id="k-bewertung"><div style="font-size:10px;color:var(--muted);">Auswerten klicken um Kunden zu bewerten.</div></div></div>
+      <div class="card"><div class="ch">6-Wochen Entscheidung</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;">
+          <div style="padding:10px;border:1px solid rgba(46,204,113,.2);background:rgba(46,204,113,.04);text-align:center;"><div style="font-family:var(--fd);font-size:13px;letter-spacing:2px;color:var(--green);margin-bottom:3px;">VOLLZEIT</div><div style="font-family:var(--fm);font-size:7px;color:var(--muted);">≥ 20.000 €</div></div>
+          <div style="padding:10px;border:1px solid rgba(241,196,15,.2);background:rgba(241,196,15,.04);text-align:center;"><div style="font-family:var(--fd);font-size:13px;letter-spacing:2px;color:var(--yellow);margin-bottom:3px;">STABILISIEREN</div><div style="font-family:var(--fm);font-size:7px;color:var(--muted);">12k–20k €</div></div>
+          <div style="padding:10px;border:1px solid rgba(231,76,60,.2);background:rgba(231,76,60,.04);text-align:center;"><div style="font-family:var(--fd);font-size:13px;letter-spacing:2px;color:var(--red);margin-bottom:3px;">JOB SUCHEN</div><div style="font-family:var(--fm);font-size:7px;color:var(--muted);">< 12.000 €</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════ KUNDE ANLEGEN MODAL ══ -->
+<div class="mbg" id="kundeModal">
+  <div class="modal">
+    <div class="mh"><div class="mt2" id="kmTitle">KUNDE ANLEGEN</div><button class="mcl" onclick="closeKundeModal()">✕</button></div>
+    <div class="mbody">
+      <div class="fgr">
+        <div class="fg"><label>Kundenname / Firma *</label><input type="text" id="km-name" placeholder="Elektriker Müller GmbH"></div>
+        <div class="fg"><label>Branche / Beschreibung</label><input type="text" id="km-branche" placeholder="z.B. Handwerk, PKV, Coaching"></div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Priorität</label>
+          <select id="km-prio">
+            <option value="1">1 — Hoch (wöchentlich 45 Min)</option>
+            <option value="2">2 — Mittel (wöchentlich 15 Min)</option>
+            <option value="3">3 — Niedrig (wöchentlich 20 Min)</option>
+          </select>
+        </div>
+        <div class="fg"><label>Montag-Uhrzeit (Call-Slot)</label><input type="time" id="km-time" value="09:00"></div>
+      </div>
+
+      <!-- ABRECHNUNG -->
+      <div class="fg">
+        <label>Abrechnungsmodell</label>
+        <div class="radio-group">
+          <div class="radio-opt active" id="ropt-pct" onclick="setAbrech('pct')">% BETEILIGUNG</div>
+          <div class="radio-opt" id="ropt-fix" onclick="setAbrech('fix')">FIX-PREIS</div>
+        </div>
+      </div>
+      <div id="abrech-pct">
+        <div class="fg"><label>Mein Anteil (%)</label><input type="number" id="km-pct" placeholder="50" min="1" max="100" value="50"></div>
+      </div>
+      <div id="abrech-fix" style="display:none;">
+        <div class="fgr">
+          <div class="fg"><label>Paket aus Preisliste</label>
+            <select id="km-paket" onchange="onKmPaket()">
+              <option value="">— Paket wählen —</option>
+              <optgroup label="Websites">
+                <option value="website-starter" data-preis="99 €/Mo" data-wert="1188" data-laufzeit="12 Monate">Website Starter – 99 €/Monat</option>
+                <option value="website-strategie" data-preis="299 €/Mo" data-wert="3588" data-laufzeit="12 Monate">Website Strategie – 299 €/Monat</option>
+                <option value="website-individual" data-preis="ab 3.500 €" data-wert="3500" data-laufzeit="Einmalig">Individualprojekt – ab 3.500 €</option>
+              </optgroup>
+              <optgroup label="SEO">
+                <option value="seo-basic" data-preis="800 €/Mo" data-wert="4800" data-laufzeit="6 Mo Min.">SEO Basic – 800 €/Monat</option>
+                <option value="seo-growth" data-preis="1.200 €/Mo" data-wert="7200" data-laufzeit="6 Mo Min.">SEO Growth – 1.200 €/Monat</option>
+              </optgroup>
+              <optgroup label="Ads">
+                <option value="ads-starter" data-preis="500 €/Mo" data-wert="3000" data-laufzeit="6 Mo Min.">ADS Starter – 500 €/Monat</option>
+                <option value="ads-performance" data-preis="10% Budget" data-wert="0" data-laufzeit="6 Mo Min.">ADS Performance – 10% Budget</option>
+              </optgroup>
+              <optgroup label="Video">
+                <option value="video-content" data-preis="1.500 €/Mo" data-wert="9000" data-laufzeit="6 Mo Min.">VIDEO Content Paket – 1.500 €/Monat</option>
+              </optgroup>
+              <optgroup label="KI / Automatisierung">
+                <option value="ki-chatbot" data-preis="ab 1.200 €" data-wert="1200" data-laufzeit="Einmalig">KI Chatbot – ab 1.200 €</option>
+                <option value="automatisierung" data-preis="ab 1.500 €" data-wert="1500" data-laufzeit="Einmalig">Automatisierung – ab 1.500 €</option>
+              </optgroup>
+              <optgroup label="Social Media">
+                <option value="sm-setup" data-preis="149 €" data-wert="149" data-laufzeit="Einmalig">Social Media Setup – 149 €</option>
+              </optgroup>
+              <optgroup label="Zusatz">
+                <option value="logo-cd" data-preis="299 €" data-wert="299" data-laufzeit="Einmalig">Logo + Corporate Design – 299 €</option>
+                <option value="fotoshooting" data-preis="699 €" data-wert="699" data-laufzeit="Einmalig">Fotoshooting – 699 €</option>
+              </optgroup>
+              <optgroup label="Pakete">
+                <option value="hw-wachstum" data-preis="~1.350 €/Mo" data-wert="8100" data-laufzeit="6–12 Mo">HW Wachstum: Website + SEO + ADS</option>
+                <option value="vollpaket" data-preis="~3.500 €/Mo" data-wert="21000" data-laufzeit="6–12 Mo">Vollpaket: Website + SEO + ADS + Video</option>
+                <option value="premium" data-preis="~4.500 €/Mo" data-wert="54000" data-laufzeit="12 Mo">KMU Premium: Individual + SEO + ADS + Video + KI</option>
+              </optgroup>
+              <option value="custom">Manuell eingeben</option>
+            </select>
+          </div>
+          <div class="fg"><label>Projektpreis (€)</label><input type="number" id="km-preis" placeholder="3500"></div>
+        </div>
+        <div class="fgr">
+          <div class="fg"><label>Abrechnungsart</label>
+            <select id="km-abrart">
+              <option value="einmalig">Einmalig</option>
+              <option value="monatlich">Monatlich</option>
+            </select>
+          </div>
+          <div class="fg"><label>Laufzeit</label><input type="text" id="km-laufzeit" placeholder="z.B. 6 Monate"></div>
+        </div>
+      </div>
+
+      <!-- PROJEKT -->
+      <div class="fgr">
+        <div class="fg"><label>Projekt-Startdatum</label><input type="date" id="km-start"></div>
+        <div class="fg"><label>Deadline</label><input type="date" id="km-deadline"></div>
+      </div>
+      <div class="fg"><label>Projektfortschritt (%)</label>
+        <input type="range" id="km-progress" min="0" max="100" value="0" oninput="document.getElementById('km-progress-val').textContent=this.value+'%'" style="width:100%;accent-color:var(--green);">
+        <div style="font-family:var(--fd);font-size:18px;color:var(--green);margin-top:2px;" id="km-progress-val">0%</div>
+      </div>
+      <div class="fg"><label>Nächste Maßnahme</label><input type="text" id="km-massnahme" placeholder="z.B. Erstgespräch Montag, Angebot versenden"></div>
+      <div class="fg"><label>Engpass</label>
+        <select id="km-engpass">
+          <option value="lead">Lead-Generierung</option>
+          <option value="setting">Setting</option>
+          <option value="closing">Closing</option>
+          <option value="lieferung">Lieferung</option>
+          <option value="ok">Kein Engpass</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-r btn-sm" id="kmDeleteBtn" style="display:none;margin-right:auto;" onclick="deleteKunde()">LÖSCHEN</button>
+      <button class="btn btn-g" onclick="closeKundeModal()">ABBRECHEN</button>
+      <button class="btn btn-b" onclick="saveKunde()">SPEICHERN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CRM LEAD MODAL ══ -->
+<div class="mbg" id="leadModal">
+  <div class="modal">
+    <div class="mh"><div class="mt2" id="lmTitle">LEAD</div><button class="mcl" onclick="closeLead()">✕</button></div>
+    <div class="mbody">
+      <div class="fgr">
+        <div class="fg"><label>Name</label><input type="text" id="lm-name" placeholder="Thomas Müller"></div>
+        <div class="fg"><label>Firma</label><input type="text" id="lm-firma" placeholder="Elektriker GmbH"></div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Telefon</label><input type="text" id="lm-tel"></div>
+        <div class="fg"><label>E-Mail</label><input type="email" id="lm-email"></div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Kanal</label>
+          <select id="lm-kanal">
+            <option value="agerium">AGERIUM</option>
+            <option value="sheets">Google Sheets</option>
+            <option value="finanzriesen">Finanzriesen</option>
+            <option value="beamtencheck">BeamtenCheck</option>
+            <option value="plaomo">Plaomo</option>
+          </select>
+        </div>
+        <div class="fg"><label>Status</label>
+          <select id="lm-stage">
+            <option value="neu">Neu</option><option value="kontakt">Kontakt</option>
+            <option value="angebot">Angebot</option><option value="verhandlung">Verhandlung</option>
+            <option value="closed">Closed ✓</option><option value="lost">Lost ✗</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Paket</label>
+        <select id="lm-paket" onchange="onLmPaket()">
+          <option value="">— wählen —</option>
+          <optgroup label="Websites"><option value="website-starter" data-wert="1188">Website Starter – 99 €/Mo</option><option value="website-strategie" data-wert="3588">Website Strategie – 299 €/Mo</option><option value="website-individual" data-wert="3500">Individualprojekt – ab 3.500 €</option></optgroup>
+          <optgroup label="SEO"><option value="seo-basic" data-wert="4800">SEO Basic – 800 €/Mo</option><option value="seo-growth" data-wert="7200">SEO Growth – 1.200 €/Mo</option></optgroup>
+          <optgroup label="Ads"><option value="ads-starter" data-wert="3000">ADS Starter – 500 €/Mo</option><option value="ads-performance" data-wert="0">ADS Performance – 10% Budget</option></optgroup>
+          <optgroup label="Video"><option value="video-content" data-wert="9000">VIDEO Paket – 1.500 €/Mo</option></optgroup>
+          <optgroup label="KI"><option value="ki-chatbot" data-wert="1200">KI Chatbot – ab 1.200 €</option><option value="automatisierung" data-wert="1500">Automatisierung – ab 1.500 €</option></optgroup>
+          <optgroup label="Pakete"><option value="hw-wachstum" data-wert="8100">HW Wachstum</option><option value="vollpaket" data-wert="21000">Vollpaket</option><option value="premium" data-wert="54000">KMU Premium</option></optgroup>
+        </select>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Wert (€)</label><input type="number" id="lm-wert"></div>
+        <div class="fg"><label>Follow-up Datum</label><input type="date" id="lm-followup"></div>
+      </div>
+      <div class="fg"><label>Nächster Schritt</label><input type="text" id="lm-next"></div>
+      <div class="fg"><label>Notiz</label><textarea id="lm-note" rows="2"></textarea></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-r btn-sm" id="lmDelBtn" style="display:none;margin-right:auto;" onclick="deleteLead()">LÖSCHEN</button>
+      <button class="btn btn-g" onclick="closeLead()">ABBRECHEN</button>
+      <button class="btn btn-b" onclick="saveLead()">SPEICHERN</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- CONTENT MODAL -->
+<div class="mbg" id="contentModal">
+  <div class="modal" style="width:520px;">
+    <div class="mh"><div class="mt2" id="cmTitle">CONTENT ANLEGEN</div><button class="mcl" onclick="closeContentModal()">✕</button></div>
+    <div class="mbody">
+      <div class="fgr">
+        <div class="fg"><label>Titel / Thema</label><input type="text" id="cm-title" placeholder="z.B. AGERIUM Vorstellung Reel"></div>
+        <div class="fg"><label>Plattform</label>
+          <select id="cm-plattform">
+            <option value="instagram">Instagram</option>
+            <option value="tiktok">TikTok</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="facebook">Facebook</option>
+            <option value="youtube">YouTube Shorts</option>
+          </select>
+        </div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Format</label>
+          <select id="cm-format">
+            <option value="reel">Reel / Video</option>
+            <option value="post">Post / Bild</option>
+            <option value="story">Story</option>
+            <option value="carousel">Carousel</option>
+          </select>
+        </div>
+        <div class="fg"><label>Status</label>
+          <select id="cm-status">
+            <option value="geplant">Geplant</option>
+            <option value="in_produktion">In Produktion</option>
+            <option value="review">Review</option>
+            <option value="gepostet">Gepostet</option>
+          </select>
+        </div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Posting-Datum</label><input type="date" id="cm-datum"></div>
+        <div class="fg"><label>Zuständig</label>
+          <select id="cm-person">
+            <option value="Sonif">Sonif</option>
+            <option value="Hakan">Hakan</option>
+            <option value="Beide">Beide</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Beschreibung / Hook</label><textarea id="cm-desc" rows="2" placeholder="Was ist der Hook? Welches Thema?"></textarea></div>
+      <div class="fg"><label>Kunde (optional)</label><input type="text" id="cm-kunde" placeholder="z.B. Babylon Reinigung"></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-r btn-sm" id="cmDelBtn" style="display:none;margin-right:auto;" onclick="deleteContent()">LÖSCHEN</button>
+      <button class="btn btn-g" onclick="closeContentModal()">ABBRECHEN</button>
+      <button class="btn btn-b" onclick="saveContent()">SPEICHERN</button>
+    </div>
+  </div>
+</div>
+
+<!-- DREH MODAL -->
+<div class="mbg" id="drehModal">
+  <div class="modal" style="width:480px;">
+    <div class="mh"><div class="mt2">DREH-TERMIN</div><button class="mcl" onclick="closeDrehModal()">✕</button></div>
+    <div class="mbody">
+      <div class="fgr">
+        <div class="fg"><label>Kunde / Projekt</label><input type="text" id="dr-kunde" placeholder="z.B. Babylon Reinigung"></div>
+        <div class="fg"><label>Datum & Uhrzeit</label><input type="datetime-local" id="dr-datum"></div>
+      </div>
+      <div class="fgr">
+        <div class="fg"><label>Anzahl Videos</label><input type="number" id="dr-anzahl" value="8" min="1"></div>
+        <div class="fg"><label>Zuständig</label>
+          <select id="dr-person">
+            <option value="Hakan">Hakan</option>
+            <option value="Sonif">Sonif</option>
+            <option value="Beide">Beide</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label>Notiz</label><input type="text" id="dr-notiz" placeholder="z.B. Equipment mitbringen, Adresse..."></div>
+    </div>
+    <div class="mf">
+      <button class="btn btn-g" onclick="closeDrehModal()">ABBRECHEN</button>
+      <button class="btn btn-b" onclick="saveDreh()">SPEICHERN</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════
+let kunden = [];      // live Kundenliste
+let kundenSort = 'datum'; // aktive Sortierung
+let leads  = [];      // CRM leads
+let editKundeId = null;
+let editLeadId  = null;
+let viewMode    = 'kanban';
+let stageFilter = 'all';
+let sField='datum', sDir=1;
+const API_URL = 'https://script.google.com/macros/s/AKfycbxZD1itCKWfREy8V5_l86klQQIM5PhTQaTE8PY4B4TAceKjxJqJtKytLZaoHrSGGrcD/exec';
+let syncTimer=null, syncCount=0, impCount=0, dupCount=0;
+let abrechMode = 'pct'; // 'pct' | 'fix'
+
+// ══ PREISLISTE LOOKUP ═════════════════════════════════
+const PAKETE_INFO = {
+  'website-starter':   {label:'Website Starter',    preis:'99 €/Mo',   wert:1188, laufzeit:'12 Monate'},
+  'website-strategie': {label:'Website Strategie',  preis:'299 €/Mo',  wert:3588, laufzeit:'12 Monate'},
+  'website-individual':{label:'Individualprojekt',  preis:'ab 3.500 €',wert:3500, laufzeit:'Einmalig'},
+  'seo-basic':         {label:'SEO Basic',          preis:'800 €/Mo',  wert:4800, laufzeit:'6 Mo Min.'},
+  'seo-growth':        {label:'SEO Growth',         preis:'1.200 €/Mo',wert:7200, laufzeit:'6 Mo Min.'},
+  'ads-starter':       {label:'ADS Starter',        preis:'500 €/Mo',  wert:3000, laufzeit:'6 Mo Min.'},
+  'ads-performance':   {label:'ADS Performance',    preis:'10% Budget',wert:0,    laufzeit:'6 Mo Min.'},
+  'video-content':     {label:'VIDEO Content',      preis:'1.500 €/Mo',wert:9000, laufzeit:'6 Mo Min.'},
+  'ki-chatbot':        {label:'KI Chatbot',         preis:'ab 1.200 €',wert:1200, laufzeit:'Einmalig'},
+  'automatisierung':   {label:'Automatisierung',    preis:'ab 1.500 €',wert:1500, laufzeit:'Einmalig'},
+  'sm-setup':          {label:'SM Setup',           preis:'149 €',     wert:149,  laufzeit:'Einmalig'},
+  'logo-cd':           {label:'Logo + CD',          preis:'299 €',     wert:299,  laufzeit:'Einmalig'},
+  'fotoshooting':      {label:'Fotoshooting',       preis:'699 €',     wert:699,  laufzeit:'Einmalig'},
+  'hw-wachstum':       {label:'HW Wachstum',        preis:'~1.350 €/Mo',wert:8100,laufzeit:'6–12 Mo'},
+  'vollpaket':         {label:'Vollpaket',          preis:'~3.500 €/Mo',wert:21000,laufzeit:'6–12 Mo'},
+  'premium':           {label:'KMU Premium',        preis:'~4.500 €/Mo',wert:54000,laufzeit:'12 Mo'},
+};
+
+
+
+function autoFillKontrolle(){
+  // Pull data automatically from CRM leads
+  const weekStart = new Date(); weekStart.setHours(0,0,0,0);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+
+  const weekLeads   = leads.filter(l => new Date(l.datum) >= weekStart);
+  const gespraecheW = leads.filter(l => l.stage !== 'neu').length;
+  const abschluesse = leads.filter(l => l.stage === 'closed' && new Date(l.datum) >= weekStart).length;
+  const umsatzW     = leads.filter(l => l.stage === 'closed' && new Date(l.datum) >= weekStart)
+                           .reduce((s,l) => s + (l.wert||0), 0);
+
+  const go = document.getElementById('wk-g');
+  const ao = document.getElementById('wk-a');
+  const uo = document.getElementById('wk-u');
+  if(go) go.value = gespraecheW;
+  if(ao) ao.value = abschluesse;
+  if(uo) uo.value = umsatzW;
+
+  const ga = document.getElementById('wk-g-auto');
+  const aa = document.getElementById('wk-a-auto');
+  const ua = document.getElementById('wk-u-auto');
+  if(ga) ga.textContent = '← aus CRM';
+  if(aa) aa.textContent = '← aus CRM';
+  if(ua) ua.textContent = '← aus CRM';
+
+  // Outreach from activity tracker
+  const outreach = parseInt(localStorage.getItem('act_outreach'))||0;
+  const oe = document.getElementById('wk-out');
+  if(oe) oe.value = outreach;
+
+  toast('CRM-Daten geladen');
+}
+
+function getOverdueLeads(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  return leads.filter(l => {
+    if(!l.followup) return false;
+    const fd = new Date(l.followup); fd.setHours(0,0,0,0);
+    return fd <= today && l.stage !== 'closed' && l.stage !== 'lost';
+  }).sort((a,b) => new Date(a.followup) - new Date(b.followup));
+}
+
+// ══ STATE: Social + Stripe + Reminders ══════════════════
+let contentItems = [];
+let drehTermine  = [];
+let payments     = [];
+let editContentId = null;
+let contentFilter = 'all';
+
+// ══ KALENDER: load in main tab ══════════════════════════
+function loadKalenderMain(){
+  const url = localStorage.getItem('ag_cal_url');
+  const wrap = document.getElementById('calEmbedMain');
+  const btn  = document.getElementById('calDirectBtn');
+  if(!wrap) return;
+  if(url){
+    wrap.innerHTML = `<iframe src="${url}" style="border:0;width:100%;height:580px;" frameborder="0" scrolling="no"></iframe>`;
+    if(btn) btn.href = 'https://calendar.google.com';
+  }
+}
+
+// ══ SOCIAL MEDIA ════════════════════════════════════════
+function saveContentData(){ localStorage.setItem('ag_content', JSON.stringify(contentItems)); }
+function saveDrehData()   { localStorage.setItem('ag_dreh',    JSON.stringify(drehTermine));  }
+
+function loadSocialData(){
+  try{ contentItems = JSON.parse(localStorage.getItem('ag_content')||'[]'); }catch(e){ contentItems=[]; }
+  try{ drehTermine  = JSON.parse(localStorage.getItem('ag_dreh')   ||'[]'); }catch(e){ drehTermine=[]; }
+}
+
+function openContentModal(id=null){
+  editContentId = id;
+  const item = id ? contentItems.find(x=>x.id===id) : null;
+  document.getElementById('cmTitle').textContent = item ? 'CONTENT BEARBEITEN' : 'CONTENT ANLEGEN';
+  document.getElementById('cmDelBtn').style.display = item ? '' : 'none';
+  if(item){
+    document.getElementById('cm-title').value    = item.title    || '';
+    document.getElementById('cm-plattform').value= item.plattform|| 'instagram';
+    document.getElementById('cm-format').value   = item.format   || 'reel';
+    document.getElementById('cm-status').value   = item.status   || 'geplant';
+    document.getElementById('cm-datum').value    = item.datum    || '';
+    document.getElementById('cm-person').value   = item.person   || 'Sonif';
+    document.getElementById('cm-desc').value     = item.desc     || '';
+    document.getElementById('cm-kunde').value    = item.kunde    || '';
+  } else {
+    document.getElementById('cm-title').value='';
+    document.getElementById('cm-plattform').value='instagram';
+    document.getElementById('cm-format').value='reel';
+    document.getElementById('cm-status').value='geplant';
+    document.getElementById('cm-datum').value='';
+    document.getElementById('cm-person').value='Sonif';
+    document.getElementById('cm-desc').value='';
+    document.getElementById('cm-kunde').value='';
+  }
+  document.getElementById('contentModal').classList.add('open');
+}
+
+function closeContentModal(){ document.getElementById('contentModal').classList.remove('open'); editContentId=null; }
+
+function saveContent(){
+  const title = document.getElementById('cm-title').value.trim();
+  if(!title){ toast('Titel eingeben!'); return; }
+  const item = {
+    id:        editContentId || ('c_'+Date.now()),
+    title,
+    plattform: document.getElementById('cm-plattform').value,
+    format:    document.getElementById('cm-format').value,
+    status:    document.getElementById('cm-status').value,
+    datum:     document.getElementById('cm-datum').value,
+    person:    document.getElementById('cm-person').value,
+    desc:      document.getElementById('cm-desc').value.trim(),
+    kunde:     document.getElementById('cm-kunde').value.trim(),
+    createdAt: Date.now()
+  };
+  if(editContentId){
+    const idx = contentItems.findIndex(x=>x.id===editContentId);
+    if(idx>=0) contentItems[idx]=item;
+  } else {
+    contentItems.push(item);
+  }
+  saveContentData(); renderContentGrid(); closeContentModal();
+  toast(editContentId?'CONTENT AKTUALISIERT':'CONTENT ANGELEGT');
+  checkReminders();
+}
+
+function deleteContent(){
+  if(!editContentId||!confirm('Content löschen?')) return;
+  contentItems = contentItems.filter(x=>x.id!==editContentId);
+  saveContentData(); renderContentGrid(); closeContentModal();
+  toast('CONTENT GELÖSCHT');
+}
+
+function filterContent(f, btn){
+  contentFilter = f;
+  document.querySelectorAll('#page-social .cflt').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderContentGrid();
+}
+
+function renderContentGrid(){
+  const grid  = document.getElementById('contentGrid');
+  const empty = document.getElementById('contentEmpty');
+  if(!grid) return;
+  const platIcons = {instagram:'📸',tiktok:'🎵',linkedin:'💼',facebook:'👥',youtube:'▶️'};
+  const statusColors = {geplant:'var(--muted)',in_produktion:'var(--yellow)',review:'var(--blue)',gepostet:'var(--green)'};
+  const statusLabels = {geplant:'GEPLANT',in_produktion:'IN PRODUKTION',review:'REVIEW',gepostet:'GEPOSTET'};
+
+  let filtered = contentItems;
+  if(contentFilter !== 'all'){
+    filtered = contentItems.filter(i =>
+      i.status === contentFilter || i.format === contentFilter
+    );
+  }
+  filtered = [...filtered].sort((a,b)=>(a.datum||'').localeCompare(b.datum||''));
+
+  if(filtered.length===0){
+    grid.innerHTML='';
+    if(empty) empty.style.display='block';
+    return;
+  }
+  if(empty) empty.style.display='none';
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  grid.innerHTML = filtered.map(item => {
+    const dateStr = item.datum ? new Date(item.datum).toLocaleDateString('de',{day:'2-digit',month:'2-digit',year:'2-digit'}) : '—';
+    const isOverdue = item.datum && new Date(item.datum) < today && item.status !== 'gepostet';
+    const sc = statusColors[item.status]||'var(--muted)';
+    return `<div style="background:var(--bg2);border:1px solid var(--border);border-top:3px solid ${sc};padding:12px 14px;cursor:pointer;transition:border-color .2s;" onclick="openContentModal('${item.id}')" onmouseover="this.style.borderColor='rgba(47,111,237,.3)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+        <span style="font-size:16px;">${platIcons[item.plattform]||'📱'}</span>
+        <span style="font-size:12px;font-weight:700;flex:1;">${item.title}</span>
+        <span style="font-family:var(--fm);font-size:7px;letter-spacing:1px;padding:2px 6px;background:${sc}22;color:${sc};border:1px solid ${sc}44;">${statusLabels[item.status]||item.status}</span>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span style="font-family:var(--fm);font-size:8px;color:var(--muted);">${item.format.toUpperCase()}</span>
+        <span style="font-family:var(--fm);font-size:8px;color:${isOverdue?'var(--red)':'var(--muted)'};">${isOverdue?'⚠ ':'📅 '}${dateStr}</span>
+        <span style="font-family:var(--fm);font-size:8px;padding:1px 5px;background:rgba(47,111,237,.08);color:var(--blue);border:1px solid rgba(47,111,237,.15);">👤 ${item.person}</span>
+        ${item.kunde?`<span style="font-family:var(--fm);font-size:8px;color:var(--orange);">${item.kunde}</span>`:''}
+      </div>
+      ${item.desc?`<div style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.4;">${item.desc}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderPostingPlan(){
+  const el = document.getElementById('postingPlan');
+  if(!el) return;
+  const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay() + 1);
+
+  let html = '';
+  for(let d=0; d<7; d++){
+    const day = new Date(weekStart);
+    day.setDate(weekStart.getDate() + d);
+    const dayStr = day.toISOString().split('T')[0];
+    const dayItems = contentItems.filter(i => i.datum === dayStr);
+    const isToday = day.toDateString() === today.toDateString();
+    html += `<div style="padding:7px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;">
+      <span style="font-family:var(--fm);font-size:9px;color:${isToday?'var(--orange)':'var(--muted)'};min-width:28px;">${days[d]}</span>
+      <div style="flex:1;">
+        ${dayItems.length===0
+          ? `<span style="font-size:10px;color:var(--muted);">—</span>`
+          : dayItems.map(i=>`<div style="font-size:10px;padding:2px 0;"><span style="color:var(--blue);">${i.title}</span> <span style="font-family:var(--fm);font-size:8px;color:var(--muted);">(${i.person})</span></div>`).join('')
+        }
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html || '<div style="color:var(--muted);font-size:10px;">Keine Inhalte diese Woche</div>';
+}
+
+// ══ DREH-TERMINE ════════════════════════════════════════
+function openDrehModal(){ document.getElementById('drehModal').classList.add('open'); }
+function closeDrehModal(){ document.getElementById('drehModal').classList.remove('open'); }
+
+function saveDreh(){
+  const kunde = document.getElementById('dr-kunde').value.trim();
+  if(!kunde){ toast('Kunden eingeben!'); return; }
+  drehTermine.push({
+    id: 'd_'+Date.now(),
+    kunde,
+    datum:  document.getElementById('dr-datum').value,
+    anzahl: parseInt(document.getElementById('dr-anzahl').value)||8,
+    person: document.getElementById('dr-person').value,
+    notiz:  document.getElementById('dr-notiz').value.trim()
+  });
+  saveDrehData(); renderDrehTermine(); closeDrehModal();
+  toast('DREH-TERMIN GESPEICHERT');
+  checkReminders();
+}
+
+function renderDrehTermine(){
+  const el = document.getElementById('drehTermine');
+  if(!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const sorted = [...drehTermine].sort((a,b)=>new Date(a.datum)-new Date(b.datum));
+  if(sorted.length===0){
+    el.innerHTML='<div style="color:var(--muted);font-size:10px;padding:10px 0;">Noch keine Dreh-Termine</div>';
+    return;
+  }
+  el.innerHTML = sorted.map(d=>{
+    const dt = d.datum ? new Date(d.datum) : null;
+    const isOverdue = dt && dt < today;
+    const dateStr = dt ? dt.toLocaleDateString('de',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<div style="padding:8px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;">
+      <span style="font-size:16px;">${isOverdue?'✅':'🎬'}</span>
+      <div style="flex:1;">
+        <div style="font-size:12px;font-weight:700;">${d.kunde}</div>
+        <div style="font-family:var(--fm);font-size:8px;color:${isOverdue?'var(--muted)':'var(--orange)'};">${dateStr} · ${d.anzahl} Videos · ${d.person}</div>
+        ${d.notiz?`<div style="font-size:10px;color:var(--muted);margin-top:2px;">${d.notiz}</div>`:''}
+      </div>
+      <button onclick="deleteDreh('${d.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px;">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function deleteDreh(id){
+  drehTermine = drehTermine.filter(d=>d.id!==id);
+  saveDrehData(); renderDrehTermine(); checkReminders();
+}
+
+// ══ PAYMENTS ════════════════════════════════════════════
+function loadPayments(){
+  try{ payments = JSON.parse(localStorage.getItem('ag_payments')||'[]'); }catch(e){ payments=[]; }
+}
+function savePayments(){ localStorage.setItem('ag_payments', JSON.stringify(payments)); }
+
+function savePayment(){
+  const kunde  = document.getElementById('pay-kunde')?.value.trim();
+  const betrag = parseFloat(document.getElementById('pay-betrag')?.value)||0;
+  if(!kunde){ toast('Kunden eingeben!'); return; }
+  payments.push({
+    id:     'p_'+Date.now(),
+    kunde,
+    betrag,
+    status: document.getElementById('pay-status')?.value || 'offen',
+    desc:   document.getElementById('pay-desc')?.value.trim() || '',
+    datum:  new Date().toISOString()
+  });
+  savePayments(); renderPayments();
+  document.getElementById('pay-kunde').value='';
+  document.getElementById('pay-betrag').value='';
+  document.getElementById('pay-desc').value='';
+  toast('ZAHLUNG GESPEICHERT');
+}
+
+function renderPayments(){
+  const el = document.getElementById('paymentList');
+  if(!el) return;
+  const smap = {offen:'var(--yellow)',bezahlt:'var(--green)',überfällig:'var(--red)'};
+  el.innerHTML = payments.length===0
+    ? '<div style="padding:20px;text-align:center;color:var(--muted);font-size:10px;font-family:var(--fm);">Noch keine Zahlungen</div>'
+    : [...payments].reverse().map(p=>`
+      <div style="padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:600;">${p.kunde}</div>
+          <div style="font-family:var(--fm);font-size:8px;color:var(--muted);">${p.desc}</div>
+        </div>
+        <div style="font-family:var(--fd);font-size:18px;color:${smap[p.status]||'var(--muted)'};">${p.betrag.toLocaleString('de')} €</div>
+        <span style="font-family:var(--fm);font-size:7px;padding:2px 6px;border:1px solid ${smap[p.status]||'var(--border)'};color:${smap[p.status]||'var(--muted)'};">${p.status.toUpperCase()}</span>
+        <button onclick="deletePayment('${p.id}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;">✕</button>
+      </div>`).join('');
+
+  const offen   = payments.filter(p=>p.status!=='bezahlt').reduce((s,p)=>s+p.betrag,0);
+  const bezahlt = payments.filter(p=>p.status==='bezahlt').reduce((s,p)=>s+p.betrag,0);
+  const to = document.getElementById('payTotalOffen');
+  const tb = document.getElementById('payTotalBezahlt');
+  if(to) to.textContent = offen.toLocaleString('de') + ' €';
+  if(tb) tb.textContent = bezahlt.toLocaleString('de') + ' €';
+}
+
+function deletePayment(id){
+  payments = payments.filter(p=>p.id!==id);
+  savePayments(); renderPayments();
+}
+
+// ══ REMINDERS / ALERTS ══════════════════════════════════
+function checkReminders(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const alerts = [];
+
+  // Overdue CRM follow-ups
+  const overdueLeads = getOverdueLeads ? getOverdueLeads() : [];
+  overdueLeads.forEach(l => alerts.push({
+    type: 'lead', label: `Follow-up überfällig: ${l.name||l.firma}`, id: l.id, urgent: true
+  }));
+
+  // Content overdue
+  contentItems.filter(i => i.datum && new Date(i.datum) < today && i.status !== 'gepostet')
+    .forEach(i => alerts.push({ type:'content', label: `Content überfällig: ${i.title}`, id: i.id }));
+
+  // Dreh upcoming (within 3 days)
+  const in3 = new Date(today); in3.setDate(today.getDate()+3);
+  drehTermine.filter(d => {
+    const dt = d.datum ? new Date(d.datum) : null;
+    return dt && dt >= today && dt <= in3;
+  }).forEach(d => alerts.push({ type:'dreh', label: `Dreh in Kürze: ${d.kunde} (${new Date(d.datum).toLocaleDateString('de')})` }));
+
+  // Kunden todos not done
+  kunden.forEach(k => {
+    const open = (k.todos||[]).filter(t=>!t.done);
+    if(open.length>0) alerts.push({ type:'todo', label: `${k.name}: ${open.length} offene To-dos` });
+  });
+
+  // Update badge
+  const badge = document.getElementById('reminderBadge');
+  if(badge){
+    if(alerts.length > 0){
+      badge.style.display = 'flex';
+      badge.textContent = alerts.length;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  // Show browser notification for urgent items
+  if(alerts.filter(a=>a.urgent).length > 0 && Notification.permission === 'granted'){
+    const urgentCount = alerts.filter(a=>a.urgent).length;
+    new Notification('⚠ AGERIUM CRM Alert', {
+      body: `${urgentCount} überfällige Follow-ups warten auf dich`
+    });
+  }
+
+  return alerts;
+}
+
+function showReminders(){
+  const alerts = checkReminders();
+  if(alerts.length === 0){ toast('Keine offenen Erinnerungen ✓'); return; }
+  const msg = alerts.slice(0,5).map(a=>'• '+a.label).join('\n');
+  alert('⚠ OFFENE ERINNERUNGEN\n\n' + msg + (alerts.length>5?`\n...und ${alerts.length-5} weitere`:''));
+}
+
+function saveCalUrl(){
+  const url = document.getElementById('calUrl')?.value.trim();
+  if(!url){ toast('Kalender-URL eingeben!'); return; }
+  localStorage.setItem('ag_cal_url', url);
+  // Update open link
+  const link = document.getElementById('calOpenLink');
+  if(link) link.href = url.replace('/embed?','/r?').split('?')[0] || 'https://calendar.google.com';
+  // Embed iframe
+  const embed = document.getElementById('calEmbed');
+  if(embed){
+    embed.innerHTML = `<iframe src="${url}" style="border:0;width:100%;height:600px;" frameborder="0" scrolling="no"></iframe>`;
+  }
+  toast('KALENDER GESPEICHERT');
+}
+
+function loadCalUrl(){
+  const saved = localStorage.getItem('ag_cal_url');
+  if(!saved) return;
+  const field = document.getElementById('calUrl');
+  if(field) field.value = saved;
+  const embed = document.getElementById('calEmbed');
+  if(embed){
+    embed.innerHTML = `<iframe src="${saved}" style="border:0;width:100%;height:600px;" frameborder="0" scrolling="no"></iframe>`;
+  }
+}
+// ══ INIT ══════════════════════════════════════════════
+function init(){
+  try{ kunden = JSON.parse(localStorage.getItem('ag_kunden4')||'[]'); }catch(e){ kunden=[]; }
+  try{ leads  = JSON.parse(localStorage.getItem('ag_leads4') ||'[]'); }catch(e){ leads=[]; }
+
+  // API URL fest eingebaut - immer auto-starten
+  const savedUrl = API_URL;
+  localStorage.setItem('ag_sheets_url', API_URL);
+  const urlField = document.getElementById('sheetsUrl');
+  if(urlField) urlField.value = API_URL;
+  startSync();
+
+  if(kunden.length === 0) seedDefaultKunden();
+
+  highlightToday();
+  renderKunden();
+  renderCRM();
+  updateTopStats();
+  checkNotif();
+  loadCalUrl();
+  loadKalenderMain();
+  loadSocialData();
+  loadPayments();
+  renderContentGrid();
+  renderDrehTermine();
+  renderPostingPlan();
+  renderPayments();
+  // Check reminders every 5 minutes
+  checkReminders();
+  setInterval(checkReminders, 300000);
+}
+
+function seedDefaultKunden(){
+  const defaults = [
+    {name:'Finanzriesen',    branche:'B2B Finanzen',       prio:1, time:'09:00', abrech:'pct', pct:50, preis:0, paket:'',       laufzeit:'',         progress:20, massnahme:'3 Closing-Calls / Woche. BU-Vorprüfung als Hook.', engpass:'closing', start:'', deadline:'', todos:[]},
+    {name:'BeamtenCheck',   branche:'PKV + Ads',           prio:1, time:'09:45', abrech:'pct', pct:50, preis:0, paket:'',       laufzeit:'',         progress:35, massnahme:'Ads-Performance prüfen. Leadziel wöchentlich setzen.', engpass:'lead', start:'', deadline:'', todos:[]},
+    {name:'Plaomo',         branche:'Growth / SEO',        prio:2, time:'10:30', abrech:'pct', pct:10, preis:0, paket:'',       laufzeit:'',         progress:15, massnahme:'Nur Closing. Hakan setzt – du schließt.', engpass:'setting', start:'', deadline:'', todos:[]},
+    {name:'Babylon Reinigung', branche:'Lokale Dienstleistung', prio:3, time:'11:00', abrech:'pct', pct:20, preis:0, paket:'',  laufzeit:'',         progress:10, massnahme:'Minimaler Einsatz. Nur reaktiv wenn Leads kommen.', engpass:'lead', start:'', deadline:'', todos:[]},
+    {name:'Hypno Mentalis', branche:'Hypnose / Coaching',  prio:3, time:'11:20', abrech:'pct', pct:20, preis:0, paket:'',       laufzeit:'',         progress:5,  massnahme:'Closing-Rate verbessern. Nur aktiv wenn Leads vorhanden.', engpass:'closing', start:'', deadline:'', todos:[]},
+  ];
+  defaults.forEach(k => { k.id=Date.now()+Math.random(); k.stats={leads:0,gespraeche:0,abschluesse:0,umsatz:0}; });
+  kunden = defaults;
+  saveKunden();
+}
+
+// ══ NAV ═══════════════════════════════════════════════
+function nav(id, el){
+  if(id==='wochenplan') setTimeout(loadKalenderMain, 100);
+  if(id==='social'){ setTimeout(()=>{ renderContentGrid(); renderPostingPlan(); renderDrehTermine(); },100); }
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nt,.mnt').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  // activate matching tabs in both desktop + mobile nav
+  document.querySelectorAll('.nt,.mnt').forEach(t=>{
+    if((t.getAttribute('onclick')||'').includes("'"+id+"'")) t.classList.add('active');
+  });
+}
+
+function highlightToday(){
+  const d=['so','mo','di','mi','do','fr','sa'][new Date().getDay()];
+  const el=document.getElementById('wh-'+d); if(el) el.classList.add('today');
+}
+
+// ══ KUNDEN RENDER ═════════════════════════════════════
+function saveKunden(){ localStorage.setItem('ag_kunden4', JSON.stringify(kunden)); }
+
+function setLohnt(id, val){
+  const k = kunden.find(x=>x.id==id); if(!k) return;
+  k.lohnt = val;
+  saveKunden();
+  const card = document.getElementById('kc-'+id);
+  if(card) card.outerHTML = renderKundeCard(k);
+}
+
+function setKundenSort(field, btn){
+  kundenSort = field;
+  document.querySelectorAll('[id^="ksort-"]').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderKunden();
+}
+
+function renderKunden(){
+  const list = document.getElementById('kundenList');
+  if(kunden.length === 0){
+    list.innerHTML = `<div class="empty-state"><div class="es-icon">👤</div>Noch keine Kunden angelegt.<br>Klick auf "+ KUNDE ANLEGEN"</div>`;
+    updateTopStats(); return;
+  }
+  // Sort by prio then time
+  let sorted = [...kunden];
+  if(kundenSort === 'datum'){
+    sorted.sort((a,b)=> (b.createdAt||0) - (a.createdAt||0));
+  } else if(kundenSort === 'umsatz'){
+    sorted.sort((a,b)=>{
+      const ua = a.abrech==='pct' ? (a.stats?.umsatz||0)*(a.pct/100) : (a.stats?.umsatz||0);
+      const ub = b.abrech==='pct' ? (b.stats?.umsatz||0)*(b.pct/100) : (b.stats?.umsatz||0);
+      return ub - ua;
+    });
+  } else if(kundenSort === 'progress'){
+    sorted.sort((a,b)=> (b.progress||0) - (a.progress||0));
+  } else {
+    sorted.sort((a,b)=> a.prio-b.prio || (a.time||'').localeCompare(b.time||''));
+  }
+  let html = '';
+  let lastPrio = 0;
+  sorted.forEach(k => {
+    if(k.prio !== lastPrio){
+      const prioLabel = {1:'Priorität 1 — Wöchentlich 45 Min', 2:'Priorität 2 — Wöchentlich 15 Min', 3:'Priorität 3 — Wöchentlich 20 Min'}[k.prio]||'';
+      html += `<div class="sec">${prioLabel}</div>`;
+      lastPrio = k.prio;
+    }
+    html += renderKundeCard(k);
+  });
+  list.innerHTML = html;
+  updateTopStats();
+}
+
+function renderKundeCard(k){
+  const s = k.stats||{};
+  const prog = Math.max(0, Math.min(100, k.progress||0));
+  const progColor = prog>=80?'var(--green)':prog>=40?'var(--orange)':'var(--blue)';
+
+  // Dates
+  const now = new Date(); now.setHours(0,0,0,0);
+  const startStr = k.start ? new Date(k.start).toLocaleDateString('de') : '—';
+  let deadlineStr = '—', deadlineClass = '';
+  if(k.deadline){
+    const dl = new Date(k.deadline); dl.setHours(0,0,0,0);
+    deadlineStr = dl.toLocaleDateString('de');
+    if(dl < now) deadlineClass = 'overdue';
+  }
+
+  // Billing display
+  let billHtml = '';
+  if(k.abrech === 'pct'){
+    const anteil = (s.umsatz||0) * (k.pct/100);
+    billHtml = `
+      <div class="kbill">
+        <span class="kbill-lbl">BETEILIGUNG</span>
+        <span class="kbill-val">${k.pct}% Anteil</span>
+        <span class="kbill-anteil">${anteil.toLocaleString('de')} €</span>
+      </div>`;
+  } else {
+    const p = PAKETE_INFO[k.paket]||{};
+    billHtml = `
+      <div class="kbill" style="border-left-color:var(--blue)">
+        <span class="kbill-lbl">FIX-PREIS</span>
+        <span class="kbill-val">${k.preis ? k.preis.toLocaleString('de')+' €' : p.preis||'—'} ${k.abrart==='monatlich'?'/Mo':''}</span>
+        ${k.laufzeit?`<span style="font-family:var(--fm);font-size:8px;color:var(--muted);margin-left:auto;">${k.laufzeit}</span>`:''}
+      </div>`;
+  }
+
+  // Engpass badge
+  const ebMap = {lead:'eb-lead',setting:'eb-setting',closing:'eb-closing',lieferung:'',ok:'eb-ok'};
+  const ebLbl = {lead:'LEAD',setting:'SETTING',closing:'CLOSING',lieferung:'LIEFERUNG',ok:'✓ OK'};
+
+  // Paket tag
+  const paketInfo = PAKETE_INFO[k.paket];
+  const paketTag = paketInfo ? `<div class="kpaket">${paketInfo.label} · ${paketInfo.preis}</div>` : '';
+
+  // Todos
+  const todos = k.todos||[];
+  const done = todos.filter(t=>t.done).length;
+  const todoHTML = todos.map((t,i)=>`
+    <div class="todo-item">
+      <input type="checkbox" class="todo-cb" ${t.done?'checked':''} onchange="toggleTodo('${k.id}',${i},this.checked)">
+      <span class="todo-text ${t.done?'done':''}" onclick="toggleTodo('${k.id}',${i},!${t.done})">${t.text}</span>
+      <button class="todo-del" onclick="deleteTodo('${k.id}',${i})">✕</button>
+    </div>`).join('');
+
+  // lohnt sich - manuell gesetzt
+  const lohntOptions = {'ja':['l-ja','LOHNT SICH'],'check':['l-check','PRÜFEN'],'nein':['l-nein','WENIG FOKUS']};
+  const lohntVal = k.lohnt || 'check';
+  const [lohntCls, lohntTxt] = lohntOptions[lohntVal] || lohntOptions['check'];
+
+  return `
+  <div class="kcard kprio-${k.prio}" id="kc-${k.id}">
+    <div class="kprio-bar"></div>
+    <div class="kh">
+      <div class="kh-left">
+        <div class="kname">${k.name}</div>
+        <div class="kmeta">${k.branche||''} · MONTAG ${k.time||'--:--'} · PRIO ${k.prio}</div>
+      </div>
+      <div class="kh-right">
+        <span class="kbadge ${k.abrech==='pct'?'kbadge-pct':'kbadge-fix'}">${k.abrech==='pct'?k.pct+'%':'FIX'}</span>
+        ${k.engpass?`<span class="eb ${ebMap[k.engpass]||''}" style="font-family:var(--fm);font-size:7px;letter-spacing:1px;padding:2px 6px;text-transform:uppercase;">${ebLbl[k.engpass]||''}</span>`:''}
+        <button class="btn btn-g btn-sm" onclick="editKunde('${k.id}')">✎</button>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="kprog-wrap">
+      <div class="kprog-row">
+        <span class="kprog-lbl">PROJEKTFORTSCHRITT</span>
+        <span class="kprog-pct" style="color:${progColor}">${prog}%</span>
+      </div>
+      <div class="kprog-track"><div class="kprog-fill" style="width:${prog}%;background:linear-gradient(90deg,var(--blue),${progColor})"></div></div>
+      <div class="kdates">
+        <div class="kdate"><span class="kdate-lbl">START</span><span class="kdate-val">${startStr}</span></div>
+        <div class="kdate"><span class="kdate-lbl">DEADLINE</span><span class="kdate-val ${deadlineClass}">${deadlineStr}</span></div>
+      </div>
+    </div>
+
+    <div class="kbody">
+      <!-- STATS -->
+      <div class="kstats">
+        <div class="ks"><div class="ks-l">LEADS</div><input type="number" value="${s.leads||0}" oninput="updateStat('${k.id}','leads',this.value)"></div>
+        <div class="ks"><div class="ks-l">GESPRÄCHE</div><input type="number" value="${s.gespraeche||0}" oninput="updateStat('${k.id}','gespraeche',this.value)"></div>
+        <div class="ks"><div class="ks-l">ABSCHLÜSSE</div><input type="number" value="${s.abschluesse||0}" oninput="updateStat('${k.id}','abschluesse',this.value)"></div>
+        <div class="ks"><div class="ks-l">UMSATZ €</div><input type="number" value="${s.umsatz||0}" oninput="updateStat('${k.id}','umsatz',this.value)"></div>
+      </div>
+
+      <!-- BILLING -->
+      ${billHtml}
+      ${paketTag}
+
+      <!-- MASSNAHME -->
+      ${k.massnahme?`<div class="kmbox"><strong>→ Nächste Maßnahme</strong>${k.massnahme}</div>`:''}
+    </div>
+
+    <!-- TODOS -->
+    <div class="ktodo-section">
+      <div class="ktodo-head">
+        <span class="ktodo-title">TO-DOs (${done}/${todos.length})</span>
+        ${todos.length>0?`<span class="ktodo-progress">${Math.round(done/todos.length*100)}% done</span>`:''}
+      </div>
+      ${todoHTML}
+      <div class="todo-add">
+        <input class="todo-input" type="text" placeholder="To-do hinzufügen..." id="ti-${k.id}"
+          onkeydown="if(event.key==='Enter')addTodo('${k.id}')">
+        <button class="btn btn-b btn-sm" onclick="addTodo('${k.id}')">+</button>
+      </div>
+    </div>
+
+    <div class="kfoot">
+      <select onchange="setLohnt('${k.id}',this.value)" onclick="event.stopPropagation()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:var(--fm);font-size:8px;letter-spacing:1px;padding:3px 7px;cursor:pointer;outline:none;" class="lohnt ${lohntCls}">
+      <option value="ja" ${lohntVal==='ja'?'selected':''}>LOHNT SICH</option>
+      <option value="check" ${lohntVal==='check'?'selected':''}>PRÜFEN</option>
+      <option value="nein" ${lohntVal==='nein'?'selected':''}>WENIG FOKUS</option>
+    </select>
+      <div class="kfoot-btns">
+        <span style="font-family:var(--fm);font-size:8px;color:var(--muted);">Eingang: ${k.start?new Date(k.start).toLocaleDateString('de'):'—'}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function updateStat(id, field, val){
+  const k = kunden.find(x=>x.id==id); if(!k) return;
+  if(!k.stats) k.stats={};
+  k.stats[field] = parseFloat(val)||0;
+  saveKunden();
+  updateTopStats();
+}
+
+function updateTopStats(){
+  // Gesamtanteil Kunden
+  let gesamt=0;
+  kunden.forEach(k=>{
+    const u=k.stats?.umsatz||0;
+    if(k.abrech==='pct') gesamt+=u*(k.pct/100); else gesamt+=u;
+  });
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('k-gesamt', Math.round(gesamt).toLocaleString('de')+' €');
+  set('k-count', kunden.length);
+
+  // Pipeline
+  const active = leads.filter(l=>l.stage!=='lost');
+  const pv = active.reduce((s,l)=>s+(l.wert||0),0);
+  set('k-pipeline', pv.toLocaleString('de')+' €');
+
+  // Ziel offen
+  const cl = leads.filter(l=>l.stage==='closed').reduce((s,l)=>s+(l.wert||0),0);
+  set('k-ziel', Math.max(0,20000-cl).toLocaleString('de')+' €');
+
+  // Umsatz diese Woche (closed leads dieser Woche)
+  const weekStart = new Date(); weekStart.setHours(0,0,0,0);
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const woche = leads.filter(l=>l.stage==='closed'&&new Date(l.datum)>=weekStart).reduce((s,l)=>s+(l.wert||0),0);
+  set('c-woche', woche.toLocaleString('de')+' €');
+
+  // CVR
+  const gespArr = leads.filter(l=>l.stage!=='neu');
+  const closedArr = leads.filter(l=>l.stage==='closed');
+  const cvr = gespArr.length>0?Math.round(closedArr.length/gespArr.length*100):0;
+  set('c-cvr', cvr+'%');
+
+  // Forecast 30 Tage (Verhandlung + Angebot)
+  const forecast = leads.filter(l=>['verhandlung','angebot'].includes(l.stage)).reduce((s,l)=>s+(l.wert||0),0);
+  set('c-forecast', forecast.toLocaleString('de')+' €');
+  const fb = document.getElementById('forecast-bar');
+  if(fb) fb.style.width = Math.min(100, (forecast/20000)*100)+'%';
+
+  // Hot deals / Offen
+  set('c-hot', leads.filter(l=>l.stage==='verhandlung').length);
+  set('c-offen', leads.filter(l=>!['closed','lost'].includes(l.stage)).length);
+
+  // Top Kunden nach Ertrag
+  const topEl = document.getElementById('c-topkunden');
+  if(topEl){
+    const sorted = [...kunden].sort((a,b)=>{
+      const ea = a.abrech==='pct'?(a.stats?.umsatz||0)*(a.pct/100):(a.stats?.umsatz||0);
+      const eb = b.abrech==='pct'?(b.stats?.umsatz||0)*(b.pct/100):(b.stats?.umsatz||0);
+      return eb-ea;
+    }).slice(0,5);
+    topEl.innerHTML = sorted.length===0
+      ? '<div style="color:var(--muted);font-size:10px;padding:10px 0;">Noch keine Umsätze eingetragen</div>'
+      : sorted.map((k,i)=>{
+          const ant = k.abrech==='pct'?(k.stats?.umsatz||0)*(k.pct/100):(k.stats?.umsatz||0);
+          return `<div class="topk-item">
+            <span class="topk-rank">${i+1}</span>
+            <span class="topk-name">${k.name}</span>
+            <span class="topk-val">${Math.round(ant).toLocaleString('de')} €</span>
+          </div>`;
+        }).join('');
+  }
+
+  // Aktivitäten bars
+  const actTargets = {outreach:100, calls:10, followups:20, abschluesse:2};
+  Object.entries(actTargets).forEach(([k,target])=>{
+    const val = parseInt(localStorage.getItem('act_'+k))||0;
+    const el = document.getElementById('act-'+k);
+    if(el) el.value = val;
+    const bar = document.getElementById('bar-'+k);
+    if(bar) bar.style.width = Math.min(100,(val/target)*100)+'%';
+  });
+}
+
+function saveActivity(){
+  ['outreach','calls','followups','abschluesse'].forEach(k=>{
+    const el=document.getElementById('act-'+k);
+    if(el) localStorage.setItem('act_'+k, el.value);
+  });
+  updateTopStats();
+}
+
+// ══ TODOS ═════════════════════════════════════════════
+function addTodo(id){
+  const inp = document.getElementById('ti-'+id);
+  const text = inp.value.trim(); if(!text) return;
+  const k = kunden.find(x=>x.id==id); if(!k) return;
+  if(!k.todos) k.todos=[];
+  k.todos.push({text, done:false});
+  inp.value='';
+  saveKunden();
+  // Update just this card
+  const card = document.getElementById('kc-'+id);
+  if(card) card.outerHTML = renderKundeCard(k);
+}
+
+function toggleTodo(id, idx, val){
+  const k = kunden.find(x=>x.id==id); if(!k) return;
+  k.todos[idx].done = val;
+  // Update progress auto
+  const done = k.todos.filter(t=>t.done).length;
+  if(k.todos.length>0) k.progress = Math.round(done/k.todos.length*100);
+  saveKunden();
+  const card = document.getElementById('kc-'+id);
+  if(card) card.outerHTML = renderKundeCard(k);
+}
+
+function deleteTodo(id, idx){
+  const k = kunden.find(x=>x.id==id); if(!k) return;
+  k.todos.splice(idx,1);
+  saveKunden();
+  const card = document.getElementById('kc-'+id);
+  if(card) card.outerHTML = renderKundeCard(k);
+}
+
+// ══ KUNDE MODAL ═══════════════════════════════════════
+function setAbrech(mode){
+  abrechMode = mode;
+  document.getElementById('ropt-pct').classList.toggle('active', mode==='pct');
+  document.getElementById('ropt-fix').classList.toggle('active', mode==='fix');
+  document.getElementById('abrech-pct').style.display = mode==='pct'?'':'none';
+  document.getElementById('abrech-fix').style.display = mode==='fix'?'':'none';
+}
+
+function onKmPaket(){
+  const sel = document.getElementById('km-paket');
+  const opt = sel.options[sel.selectedIndex];
+  const wert = opt.dataset.wert;
+  const lauf = opt.dataset.laufzeit;
+  if(wert) document.getElementById('km-preis').value = wert;
+  if(lauf) document.getElementById('km-laufzeit').value = lauf;
+}
+
+function onLmPaket(){
+  const sel = document.getElementById('lm-paket');
+  const opt = sel.options[sel.selectedIndex];
+  if(opt.dataset.wert) document.getElementById('lm-wert').value = opt.dataset.wert;
+}
+
+function openKundeModal(id=null){
+  editKundeId = id;
+  const k = id ? kunden.find(x=>x.id==id) : null;
+  document.getElementById('kmTitle').textContent = k ? 'KUNDE BEARBEITEN' : 'KUNDE ANLEGEN';
+  document.getElementById('kmDeleteBtn').style.display = k ? '' : 'none';
+
+  if(k){
+    document.getElementById('km-name').value = k.name||'';
+    document.getElementById('km-branche').value = k.branche||'';
+    document.getElementById('km-prio').value = k.prio||1;
+    document.getElementById('km-time').value = k.time||'09:00';
+    document.getElementById('km-start').value = k.start||'';
+    document.getElementById('km-deadline').value = k.deadline||'';
+    document.getElementById('km-progress').value = k.progress||0;
+    document.getElementById('km-progress-val').textContent = (k.progress||0)+'%';
+    document.getElementById('km-massnahme').value = k.massnahme||'';
+    document.getElementById('km-engpass').value = k.engpass||'lead';
+    setAbrech(k.abrech||'pct');
+    document.getElementById('km-pct').value = k.pct||50;
+    document.getElementById('km-paket').value = k.paket||'';
+    document.getElementById('km-preis').value = k.preis||'';
+    document.getElementById('km-abrart').value = k.abrart||'einmalig';
+    document.getElementById('km-laufzeit').value = k.laufzeit||'';
+  } else {
+    document.getElementById('km-name').value='';
+    document.getElementById('km-branche').value='';
+    document.getElementById('km-prio').value=1;
+    document.getElementById('km-time').value='09:00';
+    document.getElementById('km-start').value=new Date().toISOString().split('T')[0];
+    document.getElementById('km-deadline').value='';
+    document.getElementById('km-progress').value=0;
+    document.getElementById('km-progress-val').textContent='0%';
+    document.getElementById('km-massnahme').value='';
+    document.getElementById('km-engpass').value='lead';
+    setAbrech('pct');
+    document.getElementById('km-pct').value=50;
+    document.getElementById('km-paket').value='';
+    document.getElementById('km-preis').value='';
+    document.getElementById('km-abrart').value='einmalig';
+    document.getElementById('km-laufzeit').value='';
+  }
+  document.getElementById('kundeModal').classList.add('open');
+}
+
+function editKunde(id){ openKundeModal(id); }
+
+function closeKundeModal(){ document.getElementById('kundeModal').classList.remove('open'); editKundeId=null; }
+
+function saveKunde(){
+  const name = document.getElementById('km-name').value.trim();
+  if(!name){ toast('Name eingeben!'); return; }
+  const data = {
+    id: editKundeId || (Date.now()+Math.random()),
+    name,
+    branche: document.getElementById('km-branche').value.trim(),
+    prio: parseInt(document.getElementById('km-prio').value)||1,
+    time: document.getElementById('km-time').value,
+    abrech: abrechMode,
+    pct: parseFloat(document.getElementById('km-pct').value)||50,
+    paket: document.getElementById('km-paket').value,
+    preis: parseFloat(document.getElementById('km-preis').value)||0,
+    abrart: document.getElementById('km-abrart').value,
+    laufzeit: document.getElementById('km-laufzeit').value.trim(),
+    start: document.getElementById('km-start').value,
+    deadline: document.getElementById('km-deadline').value,
+    progress: parseInt(document.getElementById('km-progress').value)||0,
+    massnahme: document.getElementById('km-massnahme').value.trim(),
+    engpass: document.getElementById('km-engpass').value,
+  };
+  if(editKundeId){
+    const idx = kunden.findIndex(x=>x.id==editKundeId);
+    if(idx>=0){ data.todos=kunden[idx].todos||[]; data.stats=kunden[idx].stats||{}; kunden[idx]=data; }
+  } else {
+    data.todos=[]; data.stats={leads:0,gespraeche:0,abschluesse:0,umsatz:0};
+    data.createdAt=Date.now();
+    kunden.push(data);
+  }
+  saveKunden(); renderKunden(); closeKundeModal();
+  toast(editKundeId?'KUNDE AKTUALISIERT':'KUNDE ANGELEGT');
+}
+
+function confirmDeleteKunde(id){
+  if(!confirm('Kunden wirklich löschen?')) return;
+  kunden = kunden.filter(x=>x.id!=id);
+  saveKunden(); renderKunden(); updateTopStats();
+  toast('KUNDE GELÖSCHT');
+}
+
+function deleteKunde(){
+  if(!editKundeId) return;
+  if(!confirm('Kunden löschen?')) return;
+  kunden = kunden.filter(x=>x.id!=editKundeId);
+  saveKunden(); renderKunden(); closeKundeModal();
+  toast('KUNDE GELÖSCHT');
+}
+
+// ══ CRM LEADS ═════════════════════════════════════════
+function saveLeads(){ localStorage.setItem('ag_leads4', JSON.stringify(leads)); }
+
+function openLeadModal(id=null){
+  editLeadId=id;
+  const l=id?leads.find(x=>x.id==id):null;
+  document.getElementById('lmTitle').textContent=l?'LEAD BEARBEITEN':'LEAD ANLEGEN';
+  document.getElementById('lmDelBtn').style.display=l?'':'none';
+  if(l){
+    document.getElementById('lm-name').value=l.name||'';
+    document.getElementById('lm-firma').value=l.firma||'';
+    document.getElementById('lm-tel').value=l.telefon||'';
+    document.getElementById('lm-email').value=l.email||'';
+    document.getElementById('lm-kanal').value=l.kanal||'agerium';
+    document.getElementById('lm-stage').value=l.stage||'neu';
+    document.getElementById('lm-paket').value=l.paket||'';
+    document.getElementById('lm-wert').value=l.wert||'';
+    document.getElementById('lm-next').value=l.next||'';
+    document.getElementById('lm-followup').value=l.followup||'';
+    document.getElementById('lm-note').value='';
+  } else {
+    ['lm-name','lm-firma','lm-tel','lm-email','lm-next','lm-note','lm-followup'].forEach(id=>{document.getElementById(id).value=''||'';});
+    document.getElementById('lm-wert').value='';
+    document.getElementById('lm-kanal').value='agerium';
+    document.getElementById('lm-stage').value='neu';
+    document.getElementById('lm-paket').value='';
+  }
+  document.getElementById('leadModal').classList.add('open');
+}
+
+function closeLead(){ document.getElementById('leadModal').classList.remove('open'); editLeadId=null; }
+
+function saveLead(){
+  const name=document.getElementById('lm-name').value.trim();
+  const firma=document.getElementById('lm-firma').value.trim();
+  if(!name&&!firma){ toast('Name oder Firma eingeben!'); return; }
+  const pv=document.getElementById('lm-paket').value;
+  const pi=PAKETE_INFO[pv]||{};
+  const note=document.getElementById('lm-note').value.trim();
+  const data={
+    id: editLeadId||(Date.now()+Math.random()),
+    name, firma,
+    telefon:document.getElementById('lm-tel').value.trim(),
+    email:document.getElementById('lm-email').value.trim(),
+    kanal:document.getElementById('lm-kanal').value,
+    stage:document.getElementById('lm-stage').value,
+    paket:pv, paketLabel:pi.label||pv,
+    angebot:pi.label||pv,
+    wert:parseFloat(document.getElementById('lm-wert').value)||pi.wert||0,
+    followup:document.getElementById('lm-followup').value||'',
+    next:document.getElementById('lm-next').value.trim(),
+    notizen: note?[{date:new Date().toLocaleDateString('de'),text:note}]:[],
+    datum: editLeadId?(leads.find(x=>x.id==editLeadId)?.datum||new Date().toISOString()):new Date().toISOString(),
+    quelle: editLeadId?(leads.find(x=>x.id==editLeadId)?.quelle||'manual'):'manual'
+  };
+  if(editLeadId){ const idx=leads.findIndex(x=>x.id==editLeadId); if(idx>=0){ data.notizen=[...(leads[idx].notizen||[]),...data.notizen]; leads[idx]=data; }}
+  else leads.push(data);
+  saveLeads(); renderCRM(); closeLead(); toast(editLeadId?'AKTUALISIERT':'LEAD GESPEICHERT'); updateTopStats();
+  writeToSheet(data); // bidirektional → Sheet
+  // Wenn neuer Lead: automatisch als Kunde anlegen falls noch nicht vorhanden
+  if(!editLeadId){
+    const nm = document.getElementById('lm-name')?.value?.trim() || document.getElementById('lm-firma')?.value?.trim();
+    const exists = kunden.some(k => k.name === data.name || k.name === data.firma);
+    if(!exists && (data.name || data.firma)){
+      const newKunde = {
+        id: 'k_'+Date.now(),
+        name: data.name || data.firma,
+        branche: data.angebot || '',
+        prio: 2,
+        time: '10:00',
+        abrech: 'fix',
+        pct: 50,
+        paket: data.paket || '',
+        preis: data.wert || 0,
+        abrart: 'einmalig',
+        laufzeit: '',
+        start: new Date().toISOString().split('T')[0],
+        deadline: '',
+        progress: 0,
+        massnahme: data.next || '',
+        engpass: 'lead',
+        lohnt: 'check',
+        todos: [],
+        stats: {leads:1, gespraeche:0, abschluesse:0, umsatz:0},
+        createdAt: Date.now()
+      };
+      kunden.push(newKunde);
+      saveKunden();
+      renderKunden();
+      toast('LEAD + KUNDE ANGELEGT');
+    }
+  }
+}
+
+function deleteLead(){ if(!editLeadId||!confirm('Lead löschen?')) return; const delId=editLeadId; leads=leads.filter(l=>l.id!=editLeadId); saveLeads(); renderCRM(); closeLead(); updateTopStats(); deleteFromSheet(delId); }
+
+function renderCRM(){
+  const q=(document.getElementById('crmSearch')?.value||'').toLowerCase();
+  const fil=leads.filter(l=>{
+    const ms=stageFilter==='all'||l.stage===stageFilter;
+    const mq=!q||(l.name+l.firma+(l.paketLabel||'')+(l.kanal||'')).toLowerCase().includes(q);
+    return ms&&mq;
+  });
+  ['neu','kontakt','angebot','verhandlung','closed'].forEach(s=>{
+    const body=document.getElementById('kb-'+s); if(!body) return;
+    const cnt=document.getElementById('cnt-'+s); if(cnt) cnt.textContent=fil.filter(l=>l.stage===s).length;
+    body.innerHTML='';
+    fil.filter(l=>l.stage===s).forEach(l=>{
+      const d=document.createElement('div'); d.className='cc'+(l.isNew?' new-lead':'');
+      const today = new Date(); today.setHours(0,0,0,0);
+      const fuDate = l.followup ? new Date(l.followup) : null;
+      const isOverdue = fuDate && fuDate < today;
+      const isTodayFu = fuDate && fuDate.toDateString()===today.toDateString();
+      const fuStr = fuDate ? fuDate.toLocaleDateString('de',{day:'2-digit',month:'2-digit'}) : '';
+      d.innerHTML=`<div class="ccn">${l.name||l.firma}</div><div class="ccs">${l.firma||''}</div>${l.paketLabel?`<div style="font-size:8px;color:var(--orange);margin-bottom:2px;">📦 ${l.paketLabel}</div>`:''}<div class="ccv">${l.wert?l.wert.toLocaleString('de')+' €':''}</div><div class="ccm"><span class="cct" style="background:rgba(47,111,237,.08);color:var(--blue);border:1px solid rgba(47,111,237,.15)">${l.kanal||'agerium'}</span>${l.next?`<span class="cct" style="background:rgba(255,255,255,.04);color:var(--muted);border:1px solid var(--border)">${l.next}</span>`:''}${fuStr?`<span class="cct" style="background:${isOverdue?'rgba(231,76,60,.15)':isTodayFu?'rgba(241,196,15,.15)':'rgba(46,204,113,.1)'};color:${isOverdue?'var(--red)':isTodayFu?'var(--yellow)':'var(--green)'};border:1px solid ${isOverdue?'rgba(231,76,60,.3)':isTodayFu?'rgba(241,196,15,.3)':'rgba(46,204,113,.2)'}">${isOverdue?'⚠ ':'📅 '}${fuStr}</span>`:''}</div>`;
+      d.onclick=()=>openLeadModal(l.id); body.appendChild(d);
+      if(l.isNew) setTimeout(()=>{l.isNew=false;saveLeads();},3000);
+    });
+  });
+  const tbody=document.getElementById('crmTbody'); if(!tbody) return;
+  tbody.innerHTML='';
+  const smap={neu:'s-neu',kontakt:'s-kontakt',angebot:'s-angebot',verhandlung:'s-verhandlung',closed:'s-closed',lost:'s-lost'};
+  const slbl={neu:'NEU',kontakt:'KONTAKT',angebot:'ANGEBOT',verhandlung:'VERHANDLUNG',closed:'✓ CLOSED',lost:'✗ LOST'};
+  const sorted=[...fil].sort((a,b)=>{let va=sField==='wert'?a.wert||0:a[sField]||'',vb=sField==='wert'?b.wert||0:b[sField]||'';return va>vb?sDir:va<vb?-sDir:0;});
+  sorted.forEach(l=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td style="font-weight:700">${l.name||'–'}</td><td>${l.firma||'–'}</td><td style="font-size:10px;color:var(--orange)">${l.paketLabel||'–'}</td><td style="font-family:var(--fm);color:var(--green)">${l.wert?l.wert.toLocaleString('de')+' €':'–'}</td><td><span class="sp ${smap[l.stage]||'s-neu'}">${slbl[l.stage]||l.stage}</span></td><td style="font-family:var(--fm);font-size:7px;color:var(--muted)">${l.kanal||'agerium'}</td><td style="color:var(--muted);font-size:10px">${l.next||'–'}</td><td><div style="display:flex;gap:4px;"><button class="ai" onclick="openLeadModal(${l.id})">✎</button><button class="ai" onclick="qDelLead(${l.id})" style="color:var(--red)">✕</button></div></td>`;
+    tbody.appendChild(tr);
+  });
+  const active=leads.filter(l=>l.stage!=='lost');
+  if(document.getElementById('cs-total')) document.getElementById('cs-total').textContent=active.reduce((s,l)=>s+(l.wert||0),0).toLocaleString('de')+' €';
+  if(document.getElementById('cs-hot')) document.getElementById('cs-hot').textContent=leads.filter(l=>l.stage==='verhandlung').reduce((s,l)=>s+(l.wert||0),0).toLocaleString('de')+' €';
+  if(document.getElementById('cs-closed')) document.getElementById('cs-closed').textContent=leads.filter(l=>l.stage==='closed').reduce((s,l)=>s+(l.wert||0),0).toLocaleString('de')+' €';
+  if(document.getElementById('cs-count')) document.getElementById('cs-count').textContent=active.length;
+  updateTopStats();
+  // Update overdue bar
+  const overdue = getOverdueLeads();
+  const bar = document.getElementById('overdueBar');
+  const list = document.getElementById('overdueList');
+  if(bar && list){
+    if(overdue.length > 0){
+      bar.style.display='block';
+      list.innerHTML = overdue.slice(0,5).map(l=>`
+        <span onclick="openLeadModal('${l.id}')" style="cursor:pointer;font-family:var(--fm);font-size:9px;padding:3px 9px;background:rgba(231,76,60,.12);border:1px solid rgba(231,76,60,.25);color:var(--red);">
+          ${l.name||l.firma} · ${new Date(l.followup).toLocaleDateString('de',{day:'2-digit',month:'2-digit'})}
+        </span>`).join('');
+    } else {
+      bar.style.display='none';
+    }
+  }
+}
+
+function fStage(s,el){ stageFilter=s; document.querySelectorAll('.cflt').forEach(b=>b.classList.remove('active')); el.classList.add('active'); renderCRM(); }
+function sortC(f){ if(sField===f)sDir*=-1;else{sField=f;sDir=1;} renderCRM(); }
+function toggleView(btn){ viewMode=viewMode==='kanban'?'list':'kanban'; document.getElementById('kanbanView').style.display=viewMode==='kanban'?'block':'none'; document.getElementById('listView').style.display=viewMode==='list'?'block':'none'; btn.textContent=viewMode==='kanban'?'☰ LISTE':'⊞ KANBAN'; }
+function qDelLead(id){ if(!confirm('Lead löschen?')) return; leads=leads.filter(l=>l.id!=id); saveLeads(); renderCRM(); updateTopStats(); deleteFromSheet(id); }
+
+
+// ══ BIDIRECTIONAL SYNC: CRM → SHEETS ═════════════════
+async function writeToSheet(lead){
+  const url = API_URL;
+  if(!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        action: 'upsert',
+        id:       String(lead.id),
+        name:     lead.name     || '',
+        firma:    lead.firma    || '',
+        angebot:  lead.paketLabel || lead.angebot || '',
+        wert:     lead.wert     || 0,
+        stage:    lead.stage    || 'neu',
+        telefon:  lead.telefon  || '',
+        email:    lead.email    || '',
+        datum:    lead.datum    || new Date().toISOString(),
+        quelle:   lead.quelle   || 'CRM',
+        next:     lead.next     || '',
+        followup: lead.followup || '',
+        notiz:    (lead.notizen||[]).map(n=>n.text).join(' | ')
+      })
+    });
+    addLog('Sheet aktualisiert: ' + (lead.name||lead.firma), 'ok');
+  } catch(err){
+    addLog('Sheet-Schreibfehler: ' + err.message, 'err');
+  }
+}
+
+async function deleteFromSheet(id){
+  const url = API_URL;
+  if(!url) return;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ action: 'delete', id: String(id) })
+    });
+    addLog('Sheet-Zeile gelöscht', 'ok');
+  } catch(err){
+    addLog('Sheet-Löschfehler: ' + err.message, 'err');
+  }
+}
+// ══ API SYNC (Google Apps Script fetch) ═══════════════
+function setSyncUI(cls, lbl){
+  // Nav pill
+  const d  = document.getElementById('sdot');
+  const sl = document.getElementById('slbl');
+  if(d)  d.className  = 'sdot ' + (cls==='on'?'on': cls==='err'?'err': '');
+  if(sl) sl.textContent = lbl;
+  // Page status
+  const dp  = document.getElementById('sdotPage');
+  const slp = document.getElementById('slblPage');
+  if(dp)  dp.className  = 'sdot ' + (cls==='on'?'on': cls==='err'?'err': '');
+  if(slp) slp.textContent = lbl;
+}
+
+function showApiError(msg){
+  const box = document.getElementById('apiErrorBox');
+  if(!box) return;
+  box.textContent = msg;
+  box.style.display = 'block';
+}
+
+function hideApiError(){
+  const box = document.getElementById('apiErrorBox');
+  if(box) box.style.display = 'none';
+}
+
+function startSync(){
+  const url = (document.getElementById('sheetsUrl')?.value.trim()) || API_URL;
+  localStorage.setItem('ag_sheets_url', url);
+  if(syncTimer) clearInterval(syncTimer);
+  doSync();
+  syncTimer = setInterval(doSync, 30000);
+  addLog('Auto-Sync gestartet (alle 30s)', 'ok');
+}
+
+function stopSync(){
+  if(syncTimer) clearInterval(syncTimer);
+  syncTimer = null;
+  setSyncUI('', 'NICHT VERBUNDEN');
+  addLog('Sync gestoppt', 'warn');
+}
+
+function manualSync(){
+  const url = document.getElementById('sheetsUrl').value.trim();
+  if(!url){ toast('API-URL eingeben!'); return; }
+  doSync();
+}
+
+async function doSync(){
+  const url = (document.getElementById('sheetsUrl')?.value.trim()) || API_URL;
+  if(!url) return;
+
+  syncCount++;
+  const sc = document.getElementById('sh-syn');
+  if(sc) sc.textContent = syncCount;
+  addLog(`Sync #${syncCount} läuft...`, 'ok');
+
+  // Disable sync button while running
+  const btn = document.getElementById('btnSync');
+  if(btn){ btn.disabled = true; btn.textContent = '...'; }
+
+  try {
+    const res = await fetch(url, { cache: 'no-store' });
+
+    if(!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+
+    const data = await res.json();
+
+    if(!data || data.ok !== true){
+      throw new Error(data?.error || 'API antwortete mit ok:false');
+    }
+    if(!Array.isArray(data.leads)){
+      throw new Error('Feld "leads" ist kein Array');
+    }
+
+    processApiLeads(data.leads);
+
+    setSyncUI('on', 'VERBUNDEN ✓');
+    hideApiError();
+
+    const now = new Date().toLocaleTimeString('de', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    const ts  = document.getElementById('lastSyncTime');
+    if(ts) ts.textContent = now;
+
+    addLog(`${data.leads.length} Leads empfangen`, 'ok');
+    toast('VERBUNDEN ✓');
+
+  } catch(err){
+    const msg = err.message || String(err);
+    setSyncUI('err', 'NICHT VERBUNDEN');
+    showApiError('Fehler: ' + msg);
+    addLog('Fehler: ' + msg, 'err');
+
+  } finally {
+    if(btn){ btn.disabled = false; btn.textContent = 'SYNC'; }
+  }
+}
+
+function showNewLeadBanner(lead){
+  // Remove existing banner
+  const existing = document.getElementById('newLeadBanner');
+  if(existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.id = 'newLeadBanner';
+  banner.style.cssText = 'position:fixed;top:52px;left:0;right:0;z-index:400;background:linear-gradient(90deg,var(--green),#1aab5e);color:#000;padding:10px 20px;display:flex;align-items:center;gap:14px;animation:slideDown .3s ease;';
+  banner.innerHTML = `
+    <span style="font-family:var(--fd);font-size:22px;letter-spacing:3px;">NEUER LEAD</span>
+    <span style="font-size:14px;font-weight:700;">${lead.name||lead.firma||'Unbekannt'}</span>
+    <span style="font-size:12px;opacity:.8;">${lead.paketLabel||lead.angebot||''}</span>
+    <span style="font-size:12px;font-weight:700;margin-left:auto;">${lead.wert?lead.wert.toLocaleString('de')+' €':''}</span>
+    <button onclick="document.getElementById('newLeadBanner').remove()" style="background:rgba(0,0,0,.2);border:none;color:#000;font-size:16px;cursor:pointer;padding:2px 8px;margin-left:8px;">✕</button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(()=>{ const b=document.getElementById('newLeadBanner'); if(b) b.style.opacity='0'; b.style.transition='opacity .5s'; setTimeout(()=>{const b2=document.getElementById('newLeadBanner');if(b2)b2.remove();},500); }, 8000);
+}
+
+function processApiLeads(rawLeads){
+  let newC = 0;
+
+  rawLeads.forEach((raw, idx) => {
+    const name  = String(raw.name  || raw.Name  || raw.vorname || '').trim();
+    const firma = String(raw.firma || raw.Firma  || raw.company || '').trim();
+    const tel   = String(raw.telefon || raw.Telefon || raw.phone || raw.tel || '').trim();
+    const email = String(raw.email || raw.Email || raw.mail || '').trim();
+    const rawId = String(raw.id || raw.ID || '').trim();
+
+    // Stage normalisation
+    const stageRaw = String(raw.stage || raw.Stage || raw.status || 'neu').toLowerCase().trim();
+    const stage = normalizeStage(stageRaw);
+
+    // Paket matching
+    const paketRaw = String(raw.angebot || raw.Angebot || raw.paket || raw.service || '').trim();
+    const pm  = Object.entries(PAKETE_INFO).find(([k,v]) =>
+      v.label.toLowerCase().includes(paketRaw.toLowerCase()) || k === paketRaw.toLowerCase()
+    );
+    const pi = pm ? pm[1] : {};
+
+    // CHECK: existing lead by ID or name+email
+    const existIdx = leads.findIndex(l =>
+      (rawId && String(l.id) === rawId) ||
+      (name && l.name === name && (email ? l.email === email : tel ? l.telefon === tel : false))
+    );
+
+    if(existIdx >= 0){
+      // UPDATE existing lead from sheet
+      const existing = leads[existIdx];
+      const updated = {
+        ...existing,
+        stage,
+        wert:     parseFloat(raw.wert || raw.Wert || raw.value || existing.wert || 0) || existing.wert || 0,
+        next:     String(raw.next || raw.Next || existing.next || '').trim(),
+        followup: String(raw.followup || raw.Followup || existing.followup || '').trim(),
+        paketLabel: pi.label || paketRaw || existing.paketLabel,
+        angebot:  paketRaw || existing.angebot,
+        _fromApi: true
+      };
+      leads[existIdx] = updated;
+      // Don't count as new, don't show banner
+      return;
+    }
+
+    // NEW lead from sheet
+    const lead = {
+      id:         rawId || ('api_' + (Date.now() + idx + Math.random())),
+      name,
+      firma,
+      telefon:    tel,
+      email,
+      kanal:      String(raw.quelle || raw.Quelle || raw.source || 'API').trim(),
+      stage,
+      paket:      pm ? pm[0] : '',
+      paketLabel: pi.label  || paketRaw,
+      angebot:    paketRaw,
+      wert:       parseFloat(raw.wert || raw.Wert || raw.value || pi.wert || 0) || 0,
+      next:       String(raw.next || raw.Next || '').trim(),
+      followup:   String(raw.followup || raw.Followup || '').trim(),
+      notizen:    [],
+      datum:      raw.datum || raw.Datum || raw.date || raw.timestamp || new Date().toISOString(),
+      quelle:     String(raw.quelle || raw.Quelle || raw.source || 'API').trim(),
+      isNew:      true,
+      _fromApi:   true
+    };
+
+    leads.push(lead);
+    newC++;
+    impCount++;
+
+    showInAppNotif(lead);
+    sendBrowserNotif(lead);
+    showNewLeadBanner(lead);
+  });
+
+  const ie = document.getElementById('sh-imp'); if(ie) ie.textContent = impCount;
+  const de = document.getElementById('sh-dup'); if(de) de.textContent = dupCount;
+
+  if(newC > 0){
+    saveLeads();
+    renderCRM();
+    updateTopStats();
+    addLog(`${newC} neuer Lead(s) importiert`, 'ok');
+  } else {
+    addLog('Keine neuen Leads', 'ok');
+  }
+}
+
+function normalizeStage(s){
+  if(s.includes('closed') || s.includes('abgeschlossen') || s === 'won') return 'closed';
+  if(s.includes('lost')   || s.includes('verloren'))                      return 'lost';
+  if(s.includes('verhand')|| s.includes('negotiat'))                      return 'verhandlung';
+  if(s.includes('angebot')|| s.includes('offer') || s.includes('proposal')) return 'angebot';
+  if(s.includes('kontakt')|| s.includes('contact'))                       return 'kontakt';
+  return 'neu';
+}
+
+// ══ NOTIFICATIONS ═════════════════════════════════════
+function checkNotif(){const btn=document.getElementById('notifBtn');if(!btn)return;if(Notification.permission==='granted'){btn.textContent='✓ AKTIV';btn.className='btn btn-g btn-sm';}else if(Notification.permission==='denied'){btn.textContent='✗ BLOCKIERT';}}
+function reqNotif(){Notification.requestPermission().then(()=>checkNotif());}
+function sendBrowserNotif(l){if(Notification.permission!=='granted')return;new Notification('🔔 Neuer AGERIUM Lead!',{body:`${l.name||l.firma||'Unbekannt'} — ${l.paketLabel||'Paket offen'}`});}
+function showInAppNotif(l){const bar=document.getElementById('notifBar');const n=document.createElement('div');n.className='notif';n.style.position='relative';n.innerHTML=`<div class="ntit">🔔 NEUER LEAD</div><div class="nbod"><strong>${l.name||l.firma||'Unbekannt'}</strong><br>${l.paketLabel||'Kein Paket'}</div><button class="ncl" onclick="this.parentElement.remove()">✕</button>`;bar.appendChild(n);setTimeout(()=>n.remove(),8000);}
+function addLog(msg,type='ok'){const log=document.getElementById('syncLog');if(!log)return;const t=new Date().toLocaleTimeString('de',{hour:'2-digit',minute:'2-digit',second:'2-digit'});const d=document.createElement('div');d.className='li';d.innerHTML=`<span class="lt">${t}</span><span class="l${type}">${msg}</span>`;log.insertBefore(d,log.firstChild);if(log.children.length>60)log.removeChild(log.lastChild);}
+
+// ══ KONTROLLE ═════════════════════════════════════════
+function calcKontrolle(){
+  const out=parseInt(document.getElementById('wk-out').value)||0;
+  const g=parseInt(document.getElementById('wk-g').value)||0;
+  const a=parseInt(document.getElementById('wk-a').value)||0;
+  const u=parseFloat(document.getElementById('wk-u').value)||0;
+  const cvr=g>0?Math.round(a/g*100):0;
+  const box=document.getElementById('vbox'),vl=document.getElementById('vl'),vs=document.getElementById('vs');
+  box.classList.add('show');
+  if(u>=3300&&out>=100){box.style.cssText='border-color:var(--green);background:rgba(46,204,113,.05)';vl.style.color='var(--green)';vl.textContent='✓ AUF KURS';vs.textContent=`${u.toLocaleString('de')} € · ${cvr}% CVR · ${out} Outreach. Weiter so.`;}
+  else if(u>=1500){box.style.cssText='border-color:var(--yellow);background:rgba(241,196,15,.04)';vl.style.color='var(--yellow)';vl.textContent='⚠ AUSBAUFÄHIG';vs.textContent=`${u.toLocaleString('de')} €. ${out<100?'Outreach verdoppeln. ':''}${cvr<20?'Closing verbessern.':''}`;}
+  else{box.style.cssText='border-color:var(--red);background:rgba(231,76,60,.05)';vl.style.color='var(--red)';vl.textContent='✗ NICHT GELIEFERT';vs.textContent=`${out<50?'Outreach zu niedrig.':'Gespräche ohne Abschlüsse – Closing verbessern.'}`;}
+  const kb=document.getElementById('k-bewertung');
+  kb.innerHTML=kunden.map(k=>{
+    const u2=k.stats?.umsatz||0;
+    const ant=k.abrech==='pct'?u2*(k.pct/100):u2;
+    const v=ant>500?['SKALIEREN','var(--green)']:ant>0?['BEOBACHTEN','var(--yellow)']:['PRÜFEN','var(--red)'];
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);"><span style="font-size:11px;font-weight:600">${k.name}</span><span style="font-family:var(--fm);font-size:10px;color:var(--green)">${ant.toLocaleString('de')} €</span><span style="font-family:var(--fm);font-size:7px;letter-spacing:1px;padding:2px 7px;border:1px solid ${v[1]};color:${v[1]};background:${v[1]}22">${v[0]}</span></div>`;
+  }).join('');
+}
+
+// ══ UTILS ══════════════════════════════════════════════
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200);}
+document.querySelectorAll('.mbg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+init();
+</script>
+</body>
+</html>
