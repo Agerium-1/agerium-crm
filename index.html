@@ -415,7 +415,7 @@ nav{display:flex;align-items:stretch;border-bottom:1px solid var(--border);backg
       <!-- FORECAST -->
       <div class="cockpit-card">
         <div class="cc-head">FORECAST 30 TAGE</div>
-        <div class="forecast-wrap">
+        <div class="forecast-wrap">√
           <div class="forecast-big" id="c-forecast">0 €</div>
           <div class="forecast-sub">Potenzial aus Pipeline</div>
           <div class="forecast-bar-wrap">
@@ -2189,7 +2189,7 @@ async function writeToSheet(lead){
   try {
     await fetch(url, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({
         action: 'upsert',
         id:       String(lead.id),
@@ -2219,7 +2219,7 @@ async function deleteFromSheet(id){
   try {
     await fetch(url, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify({ action: 'delete', id: String(id) })
     });
     addLog('Sheet-Zeile gelöscht', 'ok');
